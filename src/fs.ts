@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import { constants } from "fs";
 
 export async function tryReadJsonFile(file: string) {
   const string = await tryReadFile(file);
@@ -13,5 +14,14 @@ export async function tryReadFile(file: string) {
     return await fs.readFile(file, "utf-8");
   } catch {
     return undefined;
+  }
+}
+
+export async function exists(file: string) {
+  try {
+    await fs.access(file, constants.R_OK);
+    return true;
+  } catch {
+    return false;
   }
 }

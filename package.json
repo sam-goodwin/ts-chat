@@ -12,7 +12,11 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "bin": {
-    "typesafe-ai": "./lib/cli.js"
+    "ts-chat": "./lib/cli.js"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./plugin": "./lib/plugin.js"
   },
   "workspaces": [
     "type/mock"
@@ -21,10 +25,6 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
-  },
-  "exports": {
-    ".": "./lib/index.js",
-    "./plugin": "./lib/transformer.js"
   },
   "dependencies": {
     "@types/json-schema": "^7.0.12",

@@ -5,7 +5,16 @@
     "outDir": "lib",
     "rootDir": "./src",
     "declaration": true,
-    "composite": true
+    "composite": true,
+    "plugins": [
+      {
+        "transform": "ts-chat/plugin"
+      }
+    ]
   },
-  "references": [{ "path": "../../tsconfig.json" }]
+  "references": [
+    {
+      "path": "../../tsconfig.json"
+    }
+  ]
 }
