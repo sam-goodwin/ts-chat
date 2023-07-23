@@ -24,18 +24,26 @@ await chat(
     functions: {
       add: {
         name: "add",
+        description: "Adds two numbers",
         parameterNames: ["a", "b"],
         parameters: {
           type: "object",
-          properties: { a: { type: "number" }, b: { type: "number" } },
+          properties: {
+            a: { type: "number", description: "first argument" },
+            b: { type: "number", description: "second arguments" },
+          },
         },
       },
       minus: {
         name: "minus",
+        description: "Subtracts two numbers",
         parameterNames: ["a", "b"],
         parameters: {
           type: "object",
-          properties: { a: { type: "number" }, b: { type: "number" } },
+          properties: {
+            a: { type: "number", description: "first argument" },
+            b: { type: "number", description: "second argument" },
+          },
         },
       },
     },
@@ -52,13 +60,17 @@ function minus(a, b) {
 }
 export const myFunc = chat.function(minus, () => ({
   name: "minus",
+  description: "Subtracts two numbers",
   parameterNames: ["a", "b"],
   parameters: {
     type: "object",
-    properties: { a: { type: "number" }, b: { type: "number" } },
+    properties: {
+      a: { type: "number", description: "first argument" },
+      b: { type: "number", description: "second argument" },
+    },
   },
 }));
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxJQUFJLEVBQUUsTUFBTSxTQUFTLENBQUM7QUFFL0IsTUFBTSxJQUFJLENBQ1I7SUFDRTs7Ozs7O09BTUc7SUFDSCxHQUFHLENBQUMsQ0FBUyxFQUFFLENBQVM7UUFDdEIsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0lBQ2YsQ0FBQztJQUNELEtBQUs7Q0FDTixFQUNEO0lBQ0UsUUFBUSxFQUFFLEVBQUU7Q0FDYixnVUFDRixDQUFDO0FBRUY7Ozs7O0dBS0c7QUFDSCxTQUFTLEtBQUssQ0FBQyxDQUFTLEVBQUUsQ0FBUztJQUNqQyxPQUFPLENBQUMsR0FBRyxDQUFDLENBQUM7QUFDZixDQUFDO0FBRUQsTUFBTSxDQUFDLE1BQU0sTUFBTSxHQUFHLElBQUksQ0FBQyxRQUFRLENBQUMsS0FBSyxzSkFBQyxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgY2hhdCB9IGZyb20gXCJ0cy1jaGF0XCI7XG5cbmF3YWl0IGNoYXQoXG4gIHtcbiAgICAvKipcbiAgICAgKiBBZGRzIHR3byBudW1iZXJzXG4gICAgICpcbiAgICAgKiBAcGFyYW0gYSBmaXJzdCBhcmd1bWVudFxuICAgICAqIEBwYXJhbSBiIHNlY29uZCBhcmd1bWVudHNcbiAgICAgKiBAcmV0dXJucyB0aGUgc3VtIG9mIGEgYW5kIGJcbiAgICAgKi9cbiAgICBhZGQoYTogbnVtYmVyLCBiOiBudW1iZXIpIHtcbiAgICAgIHJldHVybiBhICsgYjtcbiAgICB9LFxuICAgIG1pbnVzLFxuICB9LFxuICB7XG4gICAgbWVzc2FnZXM6IFtdLFxuICB9XG4pO1xuXG4vKipcbiAqIFN1YnRyYWN0cyB0d28gbnVtYmVyc1xuICogQHBhcmFtIGEgZmlyc3QgYXJndW1lbnRcbiAqIEBwYXJhbSBiIHNlY29uZCBhcmd1bWVudFxuICogQHJldHVybnMgYSAtIGJcbiAqL1xuZnVuY3Rpb24gbWludXMoYTogbnVtYmVyLCBiOiBudW1iZXIpOiBudW1iZXIge1xuICByZXR1cm4gYSAtIGI7XG59XG5cbmV4cG9ydCBjb25zdCBteUZ1bmMgPSBjaGF0LmZ1bmN0aW9uKG1pbnVzKTtcbiJdfQ==
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxJQUFJLEVBQUUsTUFBTSxTQUFTLENBQUM7QUFFL0IsTUFBTSxJQUFJLENBQ1I7SUFDRTs7Ozs7O09BTUc7SUFDSCxHQUFHLENBQUMsQ0FBUyxFQUFFLENBQVM7UUFDdEIsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0lBQ2YsQ0FBQztJQUNELEtBQUs7Q0FDTixFQUNEO0lBQ0UsUUFBUSxFQUFFLEVBQUU7Q0FDYixzZ0JBQ0YsQ0FBQztBQUVGOzs7OztHQUtHO0FBQ0gsU0FBUyxLQUFLLENBQUMsQ0FBUyxFQUFFLENBQVM7SUFDakMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0FBQ2YsQ0FBQztBQUVELE1BQU0sQ0FBQyxNQUFNLE1BQU0sR0FBRyxJQUFJLENBQUMsUUFBUSxDQUFDLEtBQUssMlBBQUMsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IGNoYXQgfSBmcm9tIFwidHMtY2hhdFwiO1xuXG5hd2FpdCBjaGF0KFxuICB7XG4gICAgLyoqXG4gICAgICogQWRkcyB0d28gbnVtYmVyc1xuICAgICAqXG4gICAgICogQHBhcmFtIGEgZmlyc3QgYXJndW1lbnRcbiAgICAgKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRzXG4gICAgICogQHJldHVybnMgdGhlIHN1bSBvZiBhIGFuZCBiXG4gICAgICovXG4gICAgYWRkKGE6IG51bWJlciwgYjogbnVtYmVyKSB7XG4gICAgICByZXR1cm4gYSArIGI7XG4gICAgfSxcbiAgICBtaW51cyxcbiAgfSxcbiAge1xuICAgIG1lc3NhZ2VzOiBbXSxcbiAgfVxuKTtcblxuLyoqXG4gKiBTdWJ0cmFjdHMgdHdvIG51bWJlcnNcbiAqIEBwYXJhbSBhIGZpcnN0IGFyZ3VtZW50XG4gKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRcbiAqIEByZXR1cm5zIGEgLSBiXG4gKi9cbmZ1bmN0aW9uIG1pbnVzKGE6IG51bWJlciwgYjogbnVtYmVyKTogbnVtYmVyIHtcbiAgcmV0dXJuIGEgLSBiO1xufVxuXG5leHBvcnQgY29uc3QgbXlGdW5jID0gY2hhdC5mdW5jdGlvbihtaW51cyk7XG4iXX0=
 ",
 }
 `;

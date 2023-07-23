@@ -108,14 +108,12 @@ export function parseComment(
 }
 
 function isEmptyComment(comment: ParsedComment) {
-  return (
-    Object.entries(comment).find(([key, value]) => {
-      const k = key as keyof ParsedComment;
-      if (k === "content") {
-        return value !== "";
-      } else {
-        return value !== undefined;
-      }
-    }) !== undefined
-  );
+  return Object.entries(comment).every(([key, value]) => {
+    const k = key as keyof ParsedComment;
+    if (k === "content") {
+      return value === "";
+    } else {
+      return value === undefined;
+    }
+  });
 }

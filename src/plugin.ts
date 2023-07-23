@@ -143,23 +143,37 @@ export default function (
         parameters: {
           type: "object",
           properties: Object.fromEntries(
-            signature.parameters.map((parameter) => [
-              parameter.name,
-              getParameterSchema(parameter),
-            ])
+            signature.parameters.map((parameter) => {
+              const description = comments?.[0]?.params?.[parameter.name];
+              return [
+                parameter.name,
+                getParameterSchema(parameter, description),
+              ];
+            })
           ),
         },
       };
     }
 
-    function getParameterSchema(parameter: ts.Symbol) {
+    function getParameterSchema(
+      parameter: ts.Symbol,
+      description: string | undefined
+    ) {
       if (parameter.valueDeclaration === undefined) {
         // "{}" is any in JSON Schema
-        return {};
+        return {
+          description,
+        };
       }
-      return typeToJSONSchema(
-        checker.getTypeOfSymbolAtLocation(parameter, parameter.valueDeclaration)
-      );
+      return {
+        ...typeToJSONSchema(
+          checker.getTypeOfSymbolAtLocation(
+            parameter,
+            parameter.valueDeclaration
+          )
+        ),
+        description,
+      };
     }
 
     function getFunctionComments(node: ts.Node) {
