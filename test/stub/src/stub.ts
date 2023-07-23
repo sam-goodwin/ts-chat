@@ -1,6 +1,10 @@
-import { chat } from "ts-chat";
+import { ChatClient, chat } from "ts-chat";
 
-await chat(
+const client = new ChatClient({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
+
+await client.chat(
   {
     /**
      * Adds two numbers

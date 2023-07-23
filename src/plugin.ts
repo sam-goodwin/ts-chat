@@ -1,6 +1,7 @@
 import type ts from "typescript";
 import type { TransformerExtras, PluginConfig } from "ts-patch";
 import { ParsedComment, parseComment } from "./parse-comment.js";
+import { ChatFunctionSchema } from "./chat.js";
 
 /** Changes string literal 'before' to 'after' */
 export default function (
