@@ -1,8 +1,14 @@
 {
-  "type": "module",
-  "name": "@ts-chat/stub",
+  "name": "stub",
   "version": "0.0.0",
-  "packages": {
+  "private": true,
+  "type": "module",
+  "description": "",
+  "author": "Sam Goodwin",
+  "license": "MIT",
+  "main": "lib/stub.js",
+  "types": "./lib/stub.d.ts",
+  "dependencies": {
     "ts-chat": "workspace:^"
   }
 }

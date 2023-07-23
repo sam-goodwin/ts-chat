@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compile stub project 1`] = `
+{
+  "stub.js": "import { chat } from "ts-chat";
+await chat({
+    /**
+     * Adds two numbers
+     *
+     * @param a first argument
+     * @param b second arguments
+     * @returns the sum of a and b
+     */
+    add(a, b) {
+        return a + b;
+    },
+    minus,
+}, {
+    messages: [],
+}, () => ({ schemas: { add: { functionName: "add", schema: { type: "object", properties: {} }, comments: { node: { content: "Adds two numbers", params: { a: "first argument", b: "second arguments" }, returns: "the sum of a and b" }, declarations: [{ content: "Adds two numbers", params: { a: "first argument", b: "second arguments" }, returns: "the sum of a and b" }] } }, minus: { functionName: "minus", schema: { type: "object", properties: {} }, comments: { node: undefined, declarations: [{ content: "Subtracts two numbers", params: { a: "first argument", b: "second argument" }, returns: "a - b" }] } } } }));
+/**
+ * Subtracts two numbers
+ * @param a first argument
+ * @param b second argument
+ * @returns a - b
+ */
+function minus(a, b) {
+    return a - b;
+}
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxJQUFJLEVBQUUsTUFBTSxTQUFTLENBQUM7QUFFL0IsTUFBTSxJQUFJLENBQ1I7SUFDRTs7Ozs7O09BTUc7SUFDSCxHQUFHLENBQUMsQ0FBUyxFQUFFLENBQVM7UUFDdEIsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0lBQ2YsQ0FBQztJQUNELEtBQUs7Q0FDTixFQUNEO0lBQ0UsUUFBUSxFQUFFLEVBQUU7Q0FDYixvbUJBQ0YsQ0FBQztBQUVGOzs7OztHQUtHO0FBQ0gsU0FBUyxLQUFLLENBQUMsQ0FBUyxFQUFFLENBQVM7SUFDakMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0FBQ2YsQ0FBQyIsInNvdXJjZXNDb250ZW50IjpbImltcG9ydCB7IGNoYXQgfSBmcm9tIFwidHMtY2hhdFwiO1xuXG5hd2FpdCBjaGF0KFxuICB7XG4gICAgLyoqXG4gICAgICogQWRkcyB0d28gbnVtYmVyc1xuICAgICAqXG4gICAgICogQHBhcmFtIGEgZmlyc3QgYXJndW1lbnRcbiAgICAgKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRzXG4gICAgICogQHJldHVybnMgdGhlIHN1bSBvZiBhIGFuZCBiXG4gICAgICovXG4gICAgYWRkKGE6IG51bWJlciwgYjogbnVtYmVyKSB7XG4gICAgICByZXR1cm4gYSArIGI7XG4gICAgfSxcbiAgICBtaW51cyxcbiAgfSxcbiAge1xuICAgIG1lc3NhZ2VzOiBbXSxcbiAgfVxuKTtcblxuLyoqXG4gKiBTdWJ0cmFjdHMgdHdvIG51bWJlcnNcbiAqIEBwYXJhbSBhIGZpcnN0IGFyZ3VtZW50XG4gKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRcbiAqIEByZXR1cm5zIGEgLSBiXG4gKi9cbmZ1bmN0aW9uIG1pbnVzKGE6IG51bWJlciwgYjogbnVtYmVyKTogbnVtYmVyIHtcbiAgcmV0dXJuIGEgLSBiO1xufVxuIl19",
+}
+`;

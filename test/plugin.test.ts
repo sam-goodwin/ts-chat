@@ -3,6 +3,7 @@ import path from "path";
 import ts from "typescript";
 import { loadTypeScriptProgram } from "../src/load-program.js";
 import plugin from "../src/plugin.js";
+import prettier from "prettier";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 
@@ -10,49 +11,50 @@ test("compile stub project", async () => {
   const stubDir = path.join(__dirname, "stub");
   const program = loadTypeScriptProgram(stubDir, "tsconfig.json");
 
-  const createTransformer = plugin(
-    program,
-    {},
+  program.emit(
+    undefined,
+    async (fileName, text) => {
+      if (fileName.endsWith(".js")) {
+        try {
+          text = await prettier.format(text, {
+            parser: "typescript",
+          });
+        } catch (err) {
+          debugger;
+        }
+      }
+      await fs.writeFile(fileName, text);
+    },
+    undefined,
+    false,
     {
-      ts,
-      diagnostics: [],
-      library: "",
-      addDiagnostic: () => 0,
-      removeDiagnostic: () => 0,
+      before: [
+        plugin(
+          program,
+          {},
+          {
+            ts,
+            diagnostics: [],
+            library: "",
+            addDiagnostic: () => 0,
+            removeDiagnostic: () => 0,
+          }
+        ),
+      ],
     }
   );
-
-  const printer = ts.createPrinter({
-    newLine: ts.NewLineKind.LineFeed,
-  });
-
-  program.emit(undefined, async (fileName, text) => {
-    const sf = program.getSourceFile(fileName);
-
-    const dir = path.dirname(fileName);
-    if (dir.includes(__dirname)) {
-      await fs.mkdir(dir, { recursive: true });
-
-      if (sf) {
-        const transformedSf = ts.transform(sf, [
-          (ctx) => createTransformer(ctx),
-        ]);
-        const result = printer.printFile(transformedSf.transformed[0]);
-        await fs.writeFile(fileName, result);
-      } else {
-        await fs.writeFile(fileName, text);
-      }
-    }
-  });
 
   const stubLib = path.join(__dirname, "stub", "lib");
   const stubFiles = await fs.readdir(stubLib);
-  await Promise.all(
+  const fileTuples = await Promise.all(
     stubFiles.map(async (file) => {
       if (file.endsWith(".js")) {
-        const content = await fs.readFile(path.join(stubLib, file), "utf-8");
-        expect(content).toMatchSnapshot(file);
+        return [[file, await fs.readFile(path.join(stubLib, file), "utf-8")]];
+      } else {
+        return [];
       }
     })
   );
+  const files = Object.fromEntries(fileTuples.flat());
+  expect(files).toMatchSnapshot();
 });

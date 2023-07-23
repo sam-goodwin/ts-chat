@@ -1,4 +1,4 @@
-import { chat } from "type-chain";
+import { chat } from "ts-chat";
 
 await chat(
   {
@@ -12,8 +12,19 @@ await chat(
     add(a: number, b: number) {
       return a + b;
     },
+    minus,
   },
   {
     messages: [],
   }
 );
+
+/**
+ * Subtracts two numbers
+ * @param a first argument
+ * @param b second argument
+ * @returns a - b
+ */
+function minus(a: number, b: number): number {
+  return a - b;
+}

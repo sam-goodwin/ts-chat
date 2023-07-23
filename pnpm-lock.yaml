@@ -42,7 +42,11 @@ importers:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@20.4.3)(typescript@5.1.6)
 
-  test/stub: {}
+  test/stub:
+    dependencies:
+      ts-chat:
+        specifier: workspace:^
+        version: link:../..
 
 packages:
 
