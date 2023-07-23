@@ -1,0 +1,18 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "inlineSourceMap": true,
+    "inlineSources": true,
+    "lib": ["ES2022", "WebWorker"],
+    "module": "esnext",
+    "moduleResolution": "NodeNext",
+    "outDir": "lib",
+    "resolveJsonModule": true,
+    "target": "ESNext",
+    "types": ["@types/node", "@types/jest"]
+  }
+}
