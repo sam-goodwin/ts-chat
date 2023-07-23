@@ -4,6 +4,9 @@ importers:
 
   .:
     dependencies:
+      '@types/json-schema':
+        specifier: ^7.0.12
+        version: 7.0.12
       ts-patch:
         specifier: ^3.0.2
         version: 3.0.2
@@ -759,6 +762,10 @@ packages:
       expect: 29.6.1
       pretty-format: 29.6.1
     dev: true
+
+  /@types/json-schema@7.0.12:
+    resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
+    dev: false
 
   /@types/node@20.4.3:
     resolution: {integrity: sha512-Yu3+r4Mn/iY6Mf0aihncZQ1qOjOUrCiodbHHY1hds5O+7BbKp9t+Li7zLO13zO8j9L2C6euz8xsYQP0rjGvVXw==}

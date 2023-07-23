@@ -69,6 +69,9 @@ export function parseComment(
   // Don't forget the last annotation
   finalize();
 
+  if (isEmptyComment(parsedComment)) {
+    return undefined;
+  }
   return parsedComment;
 
   function finalize() {
@@ -102,4 +105,17 @@ export function parseComment(
       }
     }
   }
+}
+
+function isEmptyComment(comment: ParsedComment) {
+  return (
+    Object.entries(comment).find(([key, value]) => {
+      const k = key as keyof ParsedComment;
+      if (k === "content") {
+        return value !== "";
+      } else {
+        return value !== undefined;
+      }
+    }) !== undefined
+  );
 }

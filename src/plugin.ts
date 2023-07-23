@@ -1,6 +1,6 @@
 import type ts from "typescript";
 import type { TransformerExtras, PluginConfig } from "ts-patch";
-import { parseComment } from "./parse-comment.js";
+import { ParsedComment, parseComment } from "./parse-comment.js";
 
 /** Changes string literal 'before' to 'after' */
 export default function (
@@ -14,38 +14,75 @@ export default function (
     const { factory } = ctx;
 
     return (sourceFile: ts.SourceFile): ts.SourceFile => {
-      function visit(node: ts.Node): ts.Node {
-        if (isChatCallExpression(node)) {
-          const schemas = getFunctionSchemas(node);
-
-          return factory.updateCallExpression(
-            node,
-            node.expression,
-            node.typeArguments,
-            [
-              ...node.arguments,
-              factory.createArrowFunction(
-                undefined,
-                undefined,
-                [],
-                undefined,
-                undefined,
-                toAST({
-                  schemas,
-                })
-              ),
-            ]
-          );
-        }
-        return ts.visitEachChild(node, visit, ctx);
-      }
       return ts.visitNode(sourceFile, visit) as ts.SourceFile;
     };
-    function isChatCallExpression(node: ts.Node): node is ts.CallExpression {
+
+    function visit(node: ts.Node): ts.Node {
+      if (isChatExpression(node)) {
+        return injectSpec(node, {
+          functions: getFunctionSpecs(node),
+        });
+      } else if (isChatFunctionExpression(node)) {
+        const [func] = node.arguments;
+        const type = checker.getTypeAtLocation(func);
+        const symbol = type.getSymbol();
+        if (symbol) {
+          const spec = getFunctionSpec(symbol);
+          if (spec) {
+            return injectSpec(node, spec);
+          }
+        }
+      }
+      return ts.visitEachChild(node, visit, ctx);
+    }
+
+    function injectSpec(node: ts.CallExpression, data: any) {
+      return factory.updateCallExpression(
+        node,
+        ts.visitNode(node.expression, visit) as ts.Expression,
+        node.typeArguments,
+        [
+          ...node.arguments,
+          factory.createArrowFunction(
+            undefined,
+            undefined,
+            [],
+            undefined,
+            undefined,
+            toAST(data)
+          ),
+        ]
+      );
+    }
+
+    // chat({ add(a: number, b: number) { return a + b; } })})
+    function isChatExpression(node: ts.Node): node is ts.CallExpression {
       return (
         ts.isCallExpression(node) &&
         ts.isIdentifier(node.expression) &&
         node.expression.text === "chat"
+      );
+    }
+
+    /**
+     * Detects the `chat.function` expression
+     *
+     * ```ts
+     * function add(a: number, b: number) { return a + b; }
+     *
+     * chat.function(add)
+     * ```
+     */
+    function isChatFunctionExpression(
+      node: ts.Node
+    ): node is ts.CallExpression {
+      return (
+        ts.isCallExpression(node) &&
+        ts.isPropertyAccessExpression(node.expression) &&
+        ts.isIdentifier(node.expression.expression) &&
+        node.expression.expression.text === "chat" &&
+        ts.isIdentifier(node.expression.name) &&
+        node.expression.name.text === "function"
       );
     }
 
@@ -57,9 +94,7 @@ export default function (
       return callSignatures.length > 0;
     }
 
-    function getFunctionSchemas(call: ts.CallExpression) {
-      // get the type of F extends Functions in the Call expression
-
+    function getFunctionSpecs(call: ts.CallExpression) {
       if (![1, 2].includes(call.arguments.length)) {
         // must be 1 or 2 arguments
         return undefined;
@@ -74,32 +109,57 @@ export default function (
       ) {
         return Object.fromEntries(
           functionsType.getProperties().flatMap((symbol) => {
-            if (symbol.valueDeclaration === undefined) {
+            const spec = getFunctionSpec(symbol);
+            if (spec === undefined) {
               return [];
             }
-            const functionType = checker.getTypeAtLocation(
-              symbol.valueDeclaration
-            );
-            if (!isFunctionType(functionType)) {
-              return [];
-            }
-            const functionName = symbol.name;
-            const schema = typeToJSONSchema(functionType);
-            const comments = getFunctionComments(symbol.valueDeclaration);
-            return [
-              [
-                functionName,
-                {
-                  functionName,
-                  schema,
-                  comments,
-                },
-              ],
-            ];
+            return [[spec.name, spec]];
           })
         );
       }
       return undefined;
+    }
+
+    function getFunctionSpec(symbol: ts.Symbol) {
+      if (symbol.valueDeclaration === undefined) {
+        return undefined;
+      }
+      const type = checker.getTypeAtLocation(symbol.valueDeclaration);
+      if (!isFunctionType(type)) {
+        return undefined;
+      }
+      // TODO: what to do about multiple call signatures? union?
+      const signature = type.getCallSignatures()[0];
+      if (!signature) {
+        return undefined;
+      }
+
+      const comments = getFunctionComments(symbol.valueDeclaration!);
+
+      return {
+        name: symbol.name,
+        description: comments?.[0]?.content,
+        parameterNames: signature.parameters.map((p) => p.name),
+        parameters: {
+          type: "object",
+          properties: Object.fromEntries(
+            signature.parameters.map((parameter) => [
+              parameter.name,
+              getParameterSchema(parameter),
+            ])
+          ),
+        },
+      };
+    }
+
+    function getParameterSchema(parameter: ts.Symbol) {
+      if (parameter.valueDeclaration === undefined) {
+        // "{}" is any in JSON Schema
+        return {};
+      }
+      return typeToJSONSchema(
+        checker.getTypeOfSymbolAtLocation(parameter, parameter.valueDeclaration)
+      );
     }
 
     function getFunctionComments(node: ts.Node) {
@@ -121,16 +181,16 @@ export default function (
       }
 
       // Get comments on the symbol's declarations
-      const declarationComments = symbol?.declarations?.map((declaration) =>
-        parseComment(ts, declaration)
-      );
+      const declarationComments =
+        symbol?.declarations?.map((declaration) =>
+          parseComment(ts, declaration)
+        ) ?? [];
 
       // Return both direct comments and declaration comments
 
-      return {
-        node: nodeComment,
-        declarations: declarationComments,
-      };
+      return [nodeComment, ...declarationComments].filter(
+        (c): c is Exclude<typeof c, undefined> => c !== undefined
+      );
     }
 
     function typeToJSONSchema(
@@ -213,12 +273,17 @@ export default function (
       } else if (obj === null) {
         return factory.createNull();
       } else if (typeof obj === "object") {
-        const properties = Object.entries(obj).map(([key, value]) =>
-          factory.createPropertyAssignment(
-            factory.createIdentifier(key),
-            toAST(value)
-          )
-        );
+        const properties = Object.entries(obj).flatMap(([key, value]) => {
+          if (value === undefined) {
+            return [];
+          }
+          return [
+            factory.createPropertyAssignment(
+              factory.createIdentifier(key),
+              toAST(value)
+            ),
+          ];
+        });
         return factory.createObjectLiteralExpression(properties);
       } else {
         // TODO: set diagnostic? or fail silently?
