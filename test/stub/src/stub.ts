@@ -11,6 +11,17 @@ export const sym = Symbol.for("ts");
  */
 type Nat = number;
 
+/**
+ * A Person
+ */
+interface Person {
+  /**
+   * @minLength 3
+   * @pattern ^[a-zA-Z]+$
+   */
+  name: string;
+}
+
 export async function main() {
   await client.chat(
     {
@@ -36,6 +47,9 @@ export async function main() {
       minus,
       getMonth(time: timestamp) {
         return time;
+      },
+      hello(person: Person, message: string) {
+        return `Hello ${person.name}, ${message}`;
       },
     },
     {

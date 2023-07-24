@@ -38,12 +38,13 @@ export default function (
     }
 
     function injectSpec(node: ts.CallExpression, data: any) {
+      node = ts.visitEachChild(node, visit, ctx);
       return factory.updateCallExpression(
         node,
-        ts.visitNode(node.expression, visit) as ts.Expression,
-        node.typeArguments?.map((t) => ts.visitNode(t, visit) as ts.TypeNode),
+        node.expression,
+        node.typeArguments,
         [
-          ...node.arguments.map((a) => ts.visitNode(a, visit) as ts.Expression),
+          ...node.arguments,
           factory.createArrowFunction(
             undefined,
             undefined,
@@ -202,17 +203,17 @@ export default function (
       // follow type aliases and grab all comments
       const typeComments = getSymbolComments(parameter, new Set());
 
+      const schema = typeToJSONSchema(parameterType, {
+        comments: [
+          // give priority to the comment on the parameter
+          ...(paramComment ? [paramComment] : []),
+          // then the comments on the type aliases in order of significance
+          ...typeComments,
+        ],
+      });
       return {
-        ...typeToJSONSchema(parameterType, {
-          existingDefinitions: {},
-          comments: [
-            // give priority to the comment on the parameter
-            ...(paramComment ? [paramComment] : []),
-            // then the comments on the type aliases in order of significance
-            ...typeComments,
-          ],
-        }),
-        description,
+        ...schema,
+        description: description ?? schema.description,
       };
     }
 
@@ -235,36 +236,38 @@ export default function (
         return [];
       }
       seen.add(node);
-      if (ts.isParameter(node) && node.type) {
-        return getNodeComments(node.type, seen);
-      } else if (ts.isTypeReferenceNode(node)) {
-        const symbol = checker.getSymbolAtLocation(node.typeName);
-        if (symbol) {
-          return getSymbolComments(symbol, seen);
-        }
-      } else if (ts.isTypeAliasDeclaration(node)) {
-        const comment = parseComment(ts, node);
-        const comments = comment ? [comment] : [];
-        const type = checker.getTypeFromTypeNode(node.type);
+      const comment = parseComment(ts, node);
+      return (comment ? [comment] : []).concat(_getNodeComments());
 
-        // If the type is not an alias, this is the termination
-        if (!type.aliasSymbol) {
-          return comments;
-        }
+      function _getNodeComments(): Comment[] {
+        if (ts.isParameter(node) && node.type) {
+          return getNodeComments(node.type, seen);
+        } else if (ts.isTypeReferenceNode(node)) {
+          const symbol = checker.getSymbolAtLocation(node.typeName);
+          if (symbol) {
+            return getSymbolComments(symbol, seen);
+          }
+        } else if (ts.isTypeAliasDeclaration(node)) {
+          const type = checker.getTypeFromTypeNode(node.type);
+          // If the type is not an alias, this is the termination
+          if (type.aliasSymbol) {
+            // Follow the alias
+            return getSymbolComments(type.aliasSymbol, seen);
+          }
+        } else if (ts.isImportSpecifier(node)) {
+          const symbol = checker.getSymbolAtLocation(node.name);
+          if (symbol) {
+            // If this is an import specifier, follow it
+            const aliasedSymbol = checker.getAliasedSymbol(symbol);
 
-        // Follow the alias
-        return comments.concat(getSymbolComments(type.aliasSymbol, seen));
-      } else if (ts.isImportSpecifier(node)) {
-        const symbol = checker.getSymbolAtLocation(node.name);
-        if (symbol) {
-          // If this is an import specifier, follow it
-          const aliasedSymbol = checker.getAliasedSymbol(symbol);
-
-          // Follow the alias
-          return getSymbolComments(aliasedSymbol, seen);
+            // Follow the alias
+            return getSymbolComments(aliasedSymbol, seen);
+          }
+        } else if (ts.isInterfaceDeclaration(node)) {
+          // TODO: follow extends clause
         }
+        return [];
       }
-      return [];
     }
 
     function getFunctionComments(node: ts.Node) {
@@ -301,22 +304,11 @@ export default function (
     function typeToJSONSchema(
       type: ts.Type | undefined,
       context: {
-        existingDefinitions: {
-          [key: string]: any;
-        };
-        isTopLevel?: boolean;
         comments?: Comment[];
-      } = {
-        existingDefinitions: {},
-      }
+      } = {}
     ): JSONSchema7 {
       if (!type) {
         return {};
-      }
-      const typeName = checker.typeToString(type);
-
-      if (!context.isTopLevel && context.existingDefinitions?.[typeName]) {
-        return { $ref: `#/definitions/${typeName}` };
       }
 
       function find<C extends keyof Comment>(constraint: C) {
@@ -355,50 +347,34 @@ export default function (
         return {
           type: "array",
           items: (type as ts.TupleType).typeArguments?.map((typeArg) =>
-            typeToJSONSchema(typeArg, {
-              ...context,
-              isTopLevel: false,
-            })
+            typeToJSONSchema(typeArg, context)
           ),
         };
       } else if (
         type.isClassOrInterface() ||
         type.flags & ts.TypeFlags.Object
       ) {
-        const properties = type.getProperties().reduce((props, symbol) => {
-          if (symbol.valueDeclaration === undefined) {
-            return props;
-          }
-          return {
-            ...props,
-            [symbol.name]: typeToJSONSchema(
-              checker.getTypeOfSymbolAtLocation(
-                symbol,
-                symbol.valueDeclaration
-              ),
-              {
-                ...context,
-                isTopLevel: false,
-              }
-            ),
-          };
-        }, {});
-
-        const definition = {
-          type: "object" as const,
-          properties,
-        };
-
-        if (!context.isTopLevel) {
-          context.existingDefinitions[typeName] = definition;
-        }
-
-        return context.isTopLevel
-          ? {
-              ...definition,
-              definitions: context.existingDefinitions,
+        return {
+          type: "object",
+          description,
+          properties: type.getProperties().reduce((props, symbol) => {
+            if (symbol.valueDeclaration === undefined) {
+              return props;
             }
-          : { $ref: `#/definitions/${typeName}` };
+            return {
+              ...props,
+              [symbol.name]: typeToJSONSchema(
+                checker.getTypeOfSymbolAtLocation(
+                  symbol,
+                  symbol.valueDeclaration
+                ),
+                {
+                  comments: getSymbolComments(symbol, new Set()),
+                }
+              ),
+            };
+          }, {}),
+        };
       } else {
         throw new Error("Unsupported type: " + type.flags);
       }

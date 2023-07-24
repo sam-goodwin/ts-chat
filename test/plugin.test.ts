@@ -1,8 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import ts from "typescript";
 import { loadTypeScriptProgram } from "../src/load-program.js";
-import plugin from "../src/plugin.js";
 import prettier from "prettier";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
@@ -32,22 +30,7 @@ test("compile stub project", async () => {
       );
     },
     undefined,
-    false,
-    {
-      before: [
-        plugin(
-          program,
-          {},
-          {
-            ts,
-            diagnostics: [],
-            library: "",
-            addDiagnostic: () => 0,
-            removeDiagnostic: () => 0,
-          }
-        ),
-      ],
-    }
+    false
   );
   await Promise.all(promises);
 

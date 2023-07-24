@@ -53,14 +53,7 @@ export function parseComment(
     const match = line.match(/^\s*\* @(\w+)\s?(.*)$/);
 
     if (match) {
-      if (!contentEnd) {
-        contentEnd = true;
-        const content = currentContent.trim();
-        if (content) {
-          // leave undefined is empty
-          parsedComment.content = content;
-        }
-      }
+      finalizeDescription();
       // Found a new annotation
       finalize();
       currentAnnotation = match[1];
@@ -68,19 +61,32 @@ export function parseComment(
     } else if (line.includes("/**")) {
       // Ignore
     } else if (!contentEnd) {
-      currentContent += "\n" + line.replace(/^\s*\*/, "").trim();
+      if (line.trim() !== "*/") {
+        currentContent += "\n" + line.replace(/^\s*\*/, "").trim();
+      }
     } else if (!line.includes("*/")) {
       currentValue += "\n" + line.replace(/^\s*\*/, "").trim();
     }
   }
 
-  // Don't forget the last annotation
+  finalizeDescription();
   finalize();
 
   if (isEmptyComment(parsedComment)) {
     return undefined;
   }
   return parsedComment;
+
+  function finalizeDescription() {
+    if (!contentEnd) {
+      contentEnd = true;
+      const content = currentContent.trim();
+      if (content) {
+        // leave undefined is empty
+        parsedComment.content = content;
+      }
+    }
+  }
 
   function finalize() {
     if (currentAnnotation) {
@@ -125,7 +131,7 @@ function isEmptyComment(comment: Comment) {
   return Object.entries(comment).every(([key, value]) => {
     const k = key as keyof Comment;
     if (k === "content") {
-      return !!value;
+      return value === undefined || value.trim() === "";
     } else {
       return value === undefined;
     }

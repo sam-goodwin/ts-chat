@@ -30,6 +30,12 @@ export async function main() {
         return a + b;
       },
       minus,
+      getMonth(time) {
+        return time;
+      },
+      hello(person, message) {
+        return \`Hello \${person.name}, \${message}\`;
+      },
     },
     {
       messages: [],
@@ -46,8 +52,8 @@ export async function main() {
               a: { type: "integer", description: "" },
               b: {
                 type: "number",
-                minimum: 2,
                 description: "second arguments",
+                minimum: 2,
               },
             },
           },
@@ -59,14 +65,42 @@ export async function main() {
           parameters: {
             type: "object",
             properties: {
-              a: { type: "number", minimum: 1, description: "first argument" },
+              a: { type: "number", description: "first argument", minimum: 1 },
               b: { type: "number", description: "second argument" },
+            },
+          },
+        },
+        getMonth: {
+          name: "getMonth",
+          parameterNames: ["time"],
+          parameters: {
+            type: "object",
+            properties: { time: { type: "string", format: "date-time" } },
+          },
+        },
+        hello: {
+          name: "hello",
+          parameterNames: ["person", "message"],
+          parameters: {
+            type: "object",
+            properties: {
+              person: {
+                type: "object",
+                description: "A Person",
+                properties: {
+                  name: {
+                    type: "string",
+                    pattern: "^[a-zA-Z]+$",
+                    minLength: 3,
+                  },
+                },
+              },
+              message: { type: "string" },
             },
           },
         },
       },
     }),
-    () => ({}),
   );
 }
 /**
@@ -78,33 +112,18 @@ export async function main() {
 function minus(a, b) {
   return a - b;
 }
-export const myFunc = chat.function(
-  minus,
-  () => ({
-    name: "minus",
-    description: "Subtracts two numbers",
-    parameterNames: ["a", "b"],
-    parameters: {
-      type: "object",
-      properties: {
-        a: { type: "number", minimum: 1, description: "first argument" },
-        b: { type: "number", description: "second argument" },
-      },
+export const myFunc = chat.function(minus, () => ({
+  name: "minus",
+  description: "Subtracts two numbers",
+  parameterNames: ["a", "b"],
+  parameters: {
+    type: "object",
+    properties: {
+      a: { type: "number", description: "first argument", minimum: 1 },
+      b: { type: "number", description: "second argument" },
     },
-  }),
-  () => ({
-    name: "minus",
-    description: "Subtracts two numbers",
-    parameterNames: ["a", "b"],
-    parameters: {
-      type: "object",
-      properties: {
-        a: { type: "number", description: "first argument", minimum: 1 },
-        b: { type: "number", description: "second argument" },
-      },
-    },
-  }),
-);
+  },
+}));
 ",
 }
 `;
