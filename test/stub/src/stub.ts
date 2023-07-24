@@ -4,24 +4,28 @@ const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-await client.chat(
-  {
-    /**
-     * Adds two numbers
-     *
-     * @param a first argument
-     * @param b second arguments
-     * @returns the sum of a and b
-     */
-    add(a: number, b: number) {
-      return a + b;
+export const sym = Symbol.for("ts");
+
+export async function main() {
+  await client.chat(
+    {
+      /**
+       * Adds two numbers
+       *
+       * @param a first argument
+       * @param b second arguments
+       * @returns the sum of a and b
+       */
+      add(a: number, b: number) {
+        return a + b;
+      },
+      minus,
     },
-    minus,
-  },
-  {
-    messages: [],
-  }
-);
+    {
+      messages: [],
+    }
+  );
+}
 
 /**
  * Subtracts two numbers

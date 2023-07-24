@@ -215,14 +215,12 @@ export type FunctionCallConfig<
 
 export interface ChatClientOptions extends OpenAIConfigurationProps {}
 
-export const tsChatSymbol = Symbol.for("ts-chat");
-
 export class ChatClient {
   /**
    * Unique identifier to signal to the ts-chat/plugin that this is the actual
    * chat client. This improves the heuristics to detect the chat client.
    */
-  readonly [tsChatSymbol] = true;
+  readonly __ts_chat = Symbol.for("ts-chat");
 
   /**
    * A reference to the OpenAI API client.
@@ -231,16 +229,6 @@ export class ChatClient {
 
   constructor(readonly options: ChatClientOptions) {
     this.openai = new OpenAIApi(new OpenAIConfiguration(options));
-  }
-
-  public async chain<F extends ChatFunctions>(
-    functions: F,
-    options: ChatInput<F>,
-    getSpec?: () => ChatFunctionsSpec<F>
-  ) {
-    assertSpec(getSpec);
-    const spec = getSpec();
-    // TODO:
   }
 
   public async chat<F extends ChatFunctions>(
@@ -255,7 +243,9 @@ export class ChatClient {
       functions: functionSpecs,
     });
 
-    if (response.function_call) {
+    if (response.function_call === undefined) {
+      // terminal assistant response
+    } else {
       const funcSpec = functionSpecs[response.function_call.name];
       const func = functions[response.function_call.name];
       if (!func || !funcSpec) {
@@ -267,7 +257,6 @@ export class ChatClient {
       // TODO: validate args against the JSON schema
 
       if (typeof args === "object") {
-        // TODO: handle rest parameters, e.g. (a, b, ...rest) => {}
         const argValues = funcSpec.parameterNames.flatMap((name, i) => {
           const argValue = args[name];
           const isLast = i === funcSpec.parameterNames.length - 1;

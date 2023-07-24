@@ -1,6 +1,6 @@
 {
-  "extends": "./tsconfig.json",
-  "include": ["test"],
+  "extends": "./tsconfig.base.json",
+  "include": ["src", "test"],
   "exclude": ["test/mock"],
   "compilerOptions": {
     "rootDir": ".",

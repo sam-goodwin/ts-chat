@@ -2,10 +2,9 @@
   "name": "stub",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
-  "description": "",
   "author": "Sam Goodwin",
   "license": "MIT",
+  "type": "module",
   "main": "lib/stub.js",
   "types": "./lib/stub.d.ts",
   "dependencies": {

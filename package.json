@@ -8,15 +8,21 @@
   "files": [
     "lib"
   ],
-  "type": "module",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
   "bin": {
     "ts-chat": "./lib/cli.js"
   },
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
+  "types": "lib/esm/index.d.ts",
   "exports": {
-    ".": "./lib/index.js",
-    "./plugin": "./lib/plugin.js"
+    ".": {
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js"
+    },
+    "./plugin": {
+      "import": "./lib/esm/plugin.js",
+      "require": "./lib/cjs/plugin.js"
+    }
   },
   "workspaces": [
     "type/mock"
