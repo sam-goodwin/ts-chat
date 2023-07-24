@@ -40,9 +40,9 @@ export default function (
       return factory.updateCallExpression(
         node,
         ts.visitNode(node.expression, visit) as ts.Expression,
-        node.typeArguments,
+        node.typeArguments?.map((t) => ts.visitNode(t, visit) as ts.TypeNode),
         [
-          ...node.arguments,
+          ...node.arguments.map((a) => ts.visitNode(a, visit) as ts.Expression),
           factory.createArrowFunction(
             undefined,
             undefined,
@@ -55,13 +55,27 @@ export default function (
       );
     }
 
-    // chat({ add(a: number, b: number) { return a + b; } })})
+    // client.chat({ add(a: number, b: number) { return a + b; } })})
     function isChatExpression(node: ts.Node): node is ts.CallExpression {
       return (
         ts.isCallExpression(node) &&
-        ts.isIdentifier(node.expression) &&
-        node.expression.text === "chat"
+        ts.isPropertyAccessExpression(node.expression) &&
+        ts.isIdentifier(node.expression.name) &&
+        node.expression.name.text === "chat" &&
+        // typeof client in client.chat(..) has __ts_chat property of type unique symbol
+        isChatClient(checker.getTypeAtLocation(node.expression.expression))
       );
+    }
+
+    function isChatClient(type: ts.Type): boolean {
+      // Get properties of the type
+      const __ts_chat = type.getProperty("__ts_chat");
+      if (__ts_chat) {
+        const propType = checker.getTypeOfSymbol(__ts_chat);
+        // Check if the type of the property is a unique symbol
+        return checker.typeToString(propType) === "symbol";
+      }
+      return false;
     }
 
     /**

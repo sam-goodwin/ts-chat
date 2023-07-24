@@ -28,7 +28,7 @@
     "type/mock"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -b",
     "watch": "tsc -w",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
