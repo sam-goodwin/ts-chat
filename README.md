@@ -3,7 +3,13 @@
 `ts-chat` is a TypeScript plugin that adds support for generating OpenAI's GPT Functions from native TypeScript functions, types and comments.
 
 ```ts
-await chat(
+import { ChatClient } from "ts-chat";
+
+const client = new ChatClient({
+  apiKey: process.env.OPEN_AI_KEY,
+});
+
+await client.chat(
   {
     /**
      * Adds two numbers.
@@ -14,7 +20,10 @@ await chat(
     add: (a: number, b: number) => a + b,
   },
   {
-    messages: [{ role: "user", content: "what is the sum of 1 and 2?" }],
+    messages: [
+      system`You are a calculator. Use the provided functions to perform computations for the user.`,
+      user`what is the sum of 1 and 2?`,
+    ],
   }
 );
 ```

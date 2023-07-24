@@ -7,9 +7,22 @@ const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY,
 });
 export const sym = Symbol.for("ts");
+export const myFunc = chat.function(minus, () => ({
+  name: "minus",
+  description: "Subtracts two numbers",
+  parameterNames: ["a", "b"],
+  parameters: {
+    type: "object",
+    properties: {
+      a: { type: "number", description: "first argument", minimum: 1 },
+      b: { type: "number", description: "second argument" },
+    },
+  },
+}));
 export async function main() {
   await client.chat(
     {
+      myFunc,
       /**
        * Adds two numbers
        *
@@ -112,18 +125,6 @@ export async function main() {
 function minus(a, b) {
   return a - b;
 }
-export const myFunc = chat.function(minus, () => ({
-  name: "minus",
-  description: "Subtracts two numbers",
-  parameterNames: ["a", "b"],
-  parameters: {
-    type: "object",
-    properties: {
-      a: { type: "number", description: "first argument", minimum: 1 },
-      b: { type: "number", description: "second argument" },
-    },
-  },
-}));
 ",
 }
 `;

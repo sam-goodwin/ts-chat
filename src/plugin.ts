@@ -65,11 +65,11 @@ export default function (
         ts.isIdentifier(node.expression.name) &&
         node.expression.name.text === "chat" &&
         // typeof client in client.chat(..) has __ts_chat property of type unique symbol
-        isChatClient(checker.getTypeAtLocation(node.expression.expression))
+        hasTSChatBrand(checker.getTypeAtLocation(node.expression.expression))
       );
     }
 
-    function isChatClient(type: ts.Type): boolean {
+    function hasTSChatBrand(type: ts.Type): boolean {
       // Get properties of the type
       const __ts_chat = type.getProperty("__ts_chat");
       if (__ts_chat) {
@@ -95,8 +95,7 @@ export default function (
       return (
         ts.isCallExpression(node) &&
         ts.isPropertyAccessExpression(node.expression) &&
-        ts.isIdentifier(node.expression.expression) &&
-        node.expression.expression.text === "chat" &&
+        hasTSChatBrand(checker.getTypeAtLocation(node.expression.expression)) &&
         ts.isIdentifier(node.expression.name) &&
         node.expression.name.text === "function"
       );
@@ -142,6 +141,11 @@ export default function (
       }
       const type = checker.getTypeAtLocation(symbol.valueDeclaration);
       if (!isFunctionType(type)) {
+        return undefined;
+      }
+      if (type.getProperty("spec") !== undefined) {
+        // this is a function created with chat.function
+        // we do not want to recreated the spec - it is already there
         return undefined;
       }
       // TODO: what to do about multiple call signatures? union?

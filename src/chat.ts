@@ -3,50 +3,32 @@ import { getEncoding } from "js-tiktoken";
 import type { JSONSchema7 } from "json-schema";
 import {
   OpenAIApi,
-  type ChatCompletionResponseMessage,
+  Configuration as OpenAIConfiguration,
   type ChatCompletionRequestMessage,
+  type ChatCompletionResponseMessage,
   type CreateChatCompletionRequestStop,
   type CreateChatCompletionResponse,
   type CreateChatCompletionResponseChoicesInner,
   type ConfigurationParameters as OpenAIConfigurationProps,
-  Configuration as OpenAIConfiguration,
 } from "openai";
 import type { Readable, Writable } from "stream";
-
-export type ChatRole = "assistant" | "function" | "system" | "user";
-
-export interface ChatMessage<
-  Functions extends ChatFunctions | undefined = any,
-> {
-  role: ChatRole;
-  content?: string | null;
-  name?: string;
-  function_call?: {
-    [FunctionName in Extract<keyof Functions, string>]: FunctionCall<
-      Functions,
-      FunctionName
-    >;
-  }[Extract<keyof Functions, string>];
-}
-
-type FunctionCall<
-  Functions extends ChatFunctions | undefined,
-  FunctionName extends Extract<keyof Functions, string> = Extract<
-    keyof Functions,
-    string
-  >,
-> = Functions extends undefined
-  ? never
-  : {
-      name: FunctionName;
-      arguments: string;
-      payload: any;
-    };
+import type { ChatMessage } from "./message.js";
 
 export type ChatFunctionHandler = (
   this: { messages: ChatMessage[] },
   ...args: any[]
 ) => any;
+
+export type ChatFunction<F extends ChatFunctionHandler = ChatFunctionHandler> =
+  F & {
+    spec: ChatFunctionSpec;
+  };
+
+export function isChatFunction(
+  func: ChatFunctionHandler
+): func is ChatFunction {
+  return "spec" in func;
+}
 
 export interface ChatFunctions {
   [functionName: string]: ChatFunctionHandler;
@@ -218,12 +200,14 @@ export type FunctionCallConfig<
 
 export interface ChatClientOptions extends OpenAIConfigurationProps {}
 
+const __ts_chat = Symbol.for("ts-chat");
+
 export class ChatClient {
   /**
    * Unique identifier to signal to the ts-chat/plugin that this is the actual
    * chat client. This improves the heuristics to detect the chat client.
    */
-  readonly __ts_chat = Symbol.for("ts-chat");
+  readonly __ts_chat = __ts_chat;
 
   /**
    * A reference to the OpenAI API client.
@@ -249,8 +233,10 @@ export class ChatClient {
     if (response.function_call === undefined) {
       // terminal assistant response
     } else {
-      const funcSpec = functionSpecs[response.function_call.name];
       const func = functions[response.function_call.name];
+      const funcSpec = isChatFunction(func)
+        ? func.spec
+        : functionSpecs[response.function_call.name];
       if (!func || !funcSpec) {
         throw new Error(
           `OpenAI called function ${response.function_call.name} but it was not defined.`
@@ -460,30 +446,22 @@ function toRawChatMessage(
   };
 }
 
-export async function chat<F extends ChatFunctions>(
-  functions: F,
-  options: ChatInput<F>,
-  getSpec?: () => ChatFunctionsSpec<F>
-) {
-  assertSpec(getSpec);
-  const spec = getSpec();
-  // TODO:
-}
-
-export type ChatFunction<F extends (...args: any[]) => any> = F & {
-  spec: ChatFunctionSpec;
-};
-
-chat.function = function <F extends (...args: any[]) => any>(
-  func: F,
-  getSpec?: () => ChatFunctionSpec
-) {
-  assertSpec(getSpec);
-  const spec = getSpec();
-  Object.assign(func, spec);
-  return func as F & {
+export const chat = {
+  __ts_chat,
+  function: function <F extends (...args: any[]) => any>(
+    func: F,
+    getSpec?: () => ChatFunctionSpec
+  ): F & {
     spec: ChatFunctionSpec;
-  };
+  } {
+    assertSpec(getSpec);
+    const spec = getSpec();
+    Object.assign(func, {
+      spec,
+      __ts_chat,
+    });
+    return func as any;
+  },
 };
 
 function assertSpec<T>(spec: T): asserts spec is Exclude<T, undefined> {
@@ -492,39 +470,6 @@ function assertSpec<T>(spec: T): asserts spec is Exclude<T, undefined> {
       `spec is required - either explicitly provide it or use the ts-chat compiler plugin`
     );
   }
-}
-
-function formatChatMessages(messages: ChatMessage[]): string {
-  let chat = "";
-  let roleIndexes = {
-    system: 1,
-    user: 1,
-    assistant: 1,
-    function: 1,
-  };
-
-  messages.forEach((message) => {
-    if (
-      message.role === "system" ||
-      message.role === "user" ||
-      message.role === "assistant" ||
-      message.role === "function"
-    ) {
-      const formattedRole = `==== ${message.role}${
-        message.name ? ` (${message.name})` : ""
-      } ====\n`;
-      if (message.content) {
-        chat += formattedRole + message.content + "\n";
-      } else if (message.function_call) {
-        chat += `${formattedRole}${message.function_call.name}(${
-          message.function_call.arguments ?? ""
-        })\n`;
-      }
-      roleIndexes[message.role]++;
-    }
-  });
-
-  return chat;
 }
 
 const gpt4 = getEncoding("cl100k_base");

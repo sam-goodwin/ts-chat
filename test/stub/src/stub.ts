@@ -1,4 +1,5 @@
 import { ChatClient, chat, int, timestamp } from "ts-chat";
+import { assistant, user } from "../../../src/message.js";
 
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -22,9 +23,12 @@ interface Person {
   name: string;
 }
 
+export const myFunc = chat.function(minus);
+
 export async function main() {
   await client.chat(
     {
+      myFunc,
       /**
        * Adds two numbers
        *
@@ -53,7 +57,11 @@ export async function main() {
       },
     },
     {
-      messages: [],
+      messages: [
+        //
+        user`Hello, I am a user`,
+        assistant("name")`Hello, I am an assistant`,
+      ],
     }
   );
 }
@@ -67,5 +75,3 @@ export async function main() {
 function minus(a: Nat, b: number): number {
   return a - b;
 }
-
-export const myFunc = chat.function(minus);
