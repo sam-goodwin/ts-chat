@@ -1,10 +1,10 @@
 import type ts from "typescript";
 
-export interface ParsedComment {
-  content: string;
-  params?: Record<string, string>;
-  min?: number;
-  max?: number;
+export type Constraint = keyof Constraints;
+
+export interface Constraints {
+  minimum?: number;
+  maximum?: number;
   minLength?: number;
   maxLength?: number;
   pattern?: string;
@@ -12,13 +12,19 @@ export interface ParsedComment {
   multipleOf?: number;
   exclusiveMinimum?: number;
   exclusiveMaximum?: number;
+  type?: string;
+}
+
+export interface Comment extends Constraints {
+  content?: string;
+  params?: Record<string, string>;
   [key: string]: any;
 }
 
 export function parseComment(
   ts: typeof import("typescript"),
   node: ts.Node
-): ParsedComment | undefined {
+): Comment | undefined {
   const sourceFile = node.getSourceFile();
   const leadingTrivia = ts.getLeadingCommentRanges(
     sourceFile.getFullText(),
@@ -29,9 +35,7 @@ export function parseComment(
     return undefined;
   }
 
-  const parsedComment: ParsedComment = {
-    content: "",
-  };
+  const parsedComment: Comment = {};
 
   // TODO: support multiple comments??
   const trivia = leadingTrivia[0];
@@ -51,7 +55,11 @@ export function parseComment(
     if (match) {
       if (!contentEnd) {
         contentEnd = true;
-        parsedComment.content = currentContent.trim();
+        const content = currentContent.trim();
+        if (content) {
+          // leave undefined is empty
+          parsedComment.content = content;
+        }
       }
       // Found a new annotation
       finalize();
@@ -82,10 +90,16 @@ export function parseComment(
         if (paramName) {
           (parsedComment.params ??= {})[paramName] = words.slice(1).join(" ");
         }
-      } else if (currentAnnotation === "min") {
-        parsedComment.min = parseInt(words[0]);
-      } else if (currentAnnotation === "max") {
-        parsedComment.max = parseInt(words[0]);
+      } else if (
+        currentAnnotation === "minimum" ||
+        currentAnnotation === "min"
+      ) {
+        parsedComment.minimum = parseInt(words[0]);
+      } else if (
+        currentAnnotation === "maximum" ||
+        currentAnnotation === "max"
+      ) {
+        parsedComment.maximum = parseInt(words[0]);
       } else if (currentAnnotation === "minLength") {
         parsedComment.minLength = parseInt(words[0]);
       } else if (currentAnnotation === "maxLength") {
@@ -107,11 +121,11 @@ export function parseComment(
   }
 }
 
-function isEmptyComment(comment: ParsedComment) {
+function isEmptyComment(comment: Comment) {
   return Object.entries(comment).every(([key, value]) => {
-    const k = key as keyof ParsedComment;
+    const k = key as keyof Comment;
     if (k === "content") {
-      return value === "";
+      return !!value;
     } else {
       return value === undefined;
     }

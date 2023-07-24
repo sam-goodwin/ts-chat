@@ -29,7 +29,7 @@
   ],
   "scripts": {
     "build": "tsc -b",
-    "watch": "tsc -w",
+    "watch": "tsc -b -w",
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {

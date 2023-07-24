@@ -1,6 +1,7 @@
 import type ts from "typescript";
 import type { TransformerExtras, PluginConfig } from "ts-patch";
-import { parseComment } from "./parse-comment.js";
+import { Constraint, Comment, parseComment } from "./comment.js";
+import type { JSONSchema7 } from "json-schema";
 
 /** Changes string literal 'before' to 'after' */
 export default function (
@@ -159,9 +160,21 @@ export default function (
           properties: Object.fromEntries(
             signature.parameters.map((parameter) => {
               const description = comments?.[0]?.params?.[parameter.name];
+
+              if (
+                parameter.valueDeclaration &&
+                !ts.isParameter(parameter.valueDeclaration)
+              ) {
+                debugger;
+              }
               return [
                 parameter.name,
-                getParameterSchema(parameter, description),
+                getParameterSchema(
+                  parameter as ts.Symbol & {
+                    valueDeclaration?: ts.ParameterDeclaration;
+                  },
+                  description
+                ),
               ];
             })
           ),
@@ -170,7 +183,9 @@ export default function (
     }
 
     function getParameterSchema(
-      parameter: ts.Symbol,
+      parameter: ts.Symbol & {
+        valueDeclaration?: ts.ParameterDeclaration;
+      },
       description: string | undefined
     ) {
       if (parameter.valueDeclaration === undefined) {
@@ -179,15 +194,77 @@ export default function (
           description,
         };
       }
+
+      const parameterType = checker.getTypeOfSymbol(parameter);
+
+      // optional comment attached to a parameter directly
+      const paramComment = parseComment(ts, parameter.valueDeclaration);
+      // follow type aliases and grab all comments
+      const typeComments = getSymbolComments(parameter, new Set());
+
       return {
-        ...typeToJSONSchema(
-          checker.getTypeOfSymbolAtLocation(
-            parameter,
-            parameter.valueDeclaration
-          )
-        ),
+        ...typeToJSONSchema(parameterType, {
+          existingDefinitions: {},
+          comments: [
+            // give priority to the comment on the parameter
+            ...(paramComment ? [paramComment] : []),
+            // then the comments on the type aliases in order of significance
+            ...typeComments,
+          ],
+        }),
         description,
       };
+    }
+
+    function getSymbolComments(
+      symbol: ts.Symbol,
+      seen: Set<ts.Node | ts.Symbol>
+    ): Comment[] {
+      if (seen.has(symbol)) {
+        return [];
+      }
+      seen.add(symbol);
+      return (
+        symbol.declarations?.flatMap((decl) => getNodeComments(decl, seen)) ??
+        []
+      );
+    }
+
+    function getNodeComments(node: ts.Node, seen: Set<ts.Node | ts.Symbol>) {
+      if (seen.has(node)) {
+        return [];
+      }
+      seen.add(node);
+      if (ts.isParameter(node) && node.type) {
+        return getNodeComments(node.type, seen);
+      } else if (ts.isTypeReferenceNode(node)) {
+        const symbol = checker.getSymbolAtLocation(node.typeName);
+        if (symbol) {
+          return getSymbolComments(symbol, seen);
+        }
+      } else if (ts.isTypeAliasDeclaration(node)) {
+        const comment = parseComment(ts, node);
+        const comments = comment ? [comment] : [];
+        const type = checker.getTypeFromTypeNode(node.type);
+
+        // If the type is not an alias, this is the termination
+        if (!type.aliasSymbol) {
+          return comments;
+        }
+
+        // Follow the alias
+        return comments.concat(getSymbolComments(type.aliasSymbol, seen));
+      } else if (ts.isImportSpecifier(node)) {
+        const symbol = checker.getSymbolAtLocation(node.name);
+        if (symbol) {
+          // If this is an import specifier, follow it
+          const aliasedSymbol = checker.getAliasedSymbol(symbol);
+
+          // Follow the alias
+          return getSymbolComments(aliasedSymbol, seen);
+        }
+      }
+      return [];
     }
 
     function getFunctionComments(node: ts.Node) {
@@ -222,30 +299,62 @@ export default function (
     }
 
     function typeToJSONSchema(
-      type: ts.Type,
-      existingDefinitions: any = {},
-      isTopLevel: boolean = true
-    ): any {
+      type: ts.Type | undefined,
+      context: {
+        existingDefinitions: {
+          [key: string]: any;
+        };
+        isTopLevel?: boolean;
+        comments?: Comment[];
+      } = {
+        existingDefinitions: {},
+      }
+    ): JSONSchema7 {
+      if (!type) {
+        return {};
+      }
       const typeName = checker.typeToString(type);
 
-      if (!isTopLevel && existingDefinitions[typeName]) {
+      if (!context.isTopLevel && context.existingDefinitions?.[typeName]) {
         return { $ref: `#/definitions/${typeName}` };
       }
 
+      function find<C extends Constraint>(constraint: C) {
+        return context.comments?.find((c) => constraint in c)?.[constraint];
+      }
+
       if (type.flags & ts.TypeFlags.Number) {
-        return { type: "number" };
+        const type = find("type");
+        return {
+          type: type === "int" || type === "integer" ? "integer" : "number",
+          minimum: find("minimum"),
+          maximum: find("maximum"),
+          multipleOf: find("multipleOf"),
+          exclusiveMinimum: find("exclusiveMinimum"),
+          exclusiveMaximum: find("exclusiveMaximum"),
+        };
       } else if (type.flags & ts.TypeFlags.String) {
-        return { type: "string" };
+        return {
+          type: "string",
+          pattern: find("pattern"),
+          format: find("format"),
+          maxLength: find("maxLength"),
+          minLength: find("minLength"),
+        };
       } else if (type.flags & ts.TypeFlags.Boolean) {
         return { type: "boolean" };
       } else if (
         type.flags & ts.TypeFlags.Object &&
-        (type as ts.ObjectType).objectFlags & ts.ObjectFlags.Tuple
+        (type as ts.ObjectType).objectFlags &
+          (ts.ObjectFlags.Tuple | ts.ObjectFlags.ArrayLiteral)
       ) {
         return {
           type: "array",
           items: (type as ts.TupleType).typeArguments?.map((typeArg) =>
-            typeToJSONSchema(typeArg, existingDefinitions, false)
+            typeToJSONSchema(typeArg, {
+              ...context,
+              isTopLevel: false,
+            })
           ),
         };
       } else if (
@@ -263,22 +372,26 @@ export default function (
                 symbol,
                 symbol.valueDeclaration
               ),
-              existingDefinitions,
-              false
+              {
+                ...context,
+                isTopLevel: false,
+              }
             ),
           };
         }, {});
 
         const definition = {
-          type: "object",
+          type: "object" as const,
           properties,
         };
 
-        if (!isTopLevel) {
-          existingDefinitions[typeName] = definition;
+        if (!context.isTopLevel) {
+          context.existingDefinitions[typeName] = definition;
         }
 
-        return isTopLevel ? definition : { $ref: `#/definitions/${typeName}` };
+        return context.isTopLevel
+          ? definition
+          : { $ref: `#/definitions/${typeName}` };
       } else {
         throw new Error("Unsupported type: " + type.flags);
       }

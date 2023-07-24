@@ -1,5 +1,5 @@
 import ts from "typescript";
-import { ParsedComment, parseComment } from "../src/parse-comment.js"; // The function to test
+import { Comment, parseComment } from "../src/comment.js"; // The function to test
 
 describe("parseAnnotations", () => {
   test("should parse single annotation without value", () => {
@@ -19,7 +19,7 @@ describe("parseAnnotations", () => {
     )!;
     expect(parseComment(ts, functionDeclaration)).toEqual({
       content: "",
-    } satisfies ParsedComment);
+    } satisfies Comment);
   });
 
   test("should parse single annotation with value", () => {
@@ -40,7 +40,7 @@ describe("parseAnnotations", () => {
     expect(parseComment(ts, functionDeclaration)).toEqual({
       content: "",
       min: 10,
-    } satisfies ParsedComment);
+    } satisfies Comment);
   });
 
   test("should parse multiple annotations with multiline values", () => {
@@ -67,6 +67,6 @@ describe("parseAnnotations", () => {
         foo: "blah\nblah blah",
       },
       max: 50,
-    } satisfies ParsedComment);
+    } satisfies Comment);
   });
 });

@@ -1,10 +1,15 @@
-import { ChatClient, chat } from "ts-chat";
+import { ChatClient, chat, int } from "ts-chat";
 
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export const sym = Symbol.for("ts");
+
+/**
+ * @min 1
+ */
+type Nat = number;
 
 export async function main() {
   await client.chat(
@@ -16,7 +21,13 @@ export async function main() {
        * @param b second arguments
        * @returns the sum of a and b
        */
-      add(a: number, b: number) {
+      add(
+        a: int,
+        /**
+         * @min 2
+         */
+        b: Nat
+      ) {
         return a + b;
       },
       minus,
@@ -33,7 +44,7 @@ export async function main() {
  * @param b second argument
  * @returns a - b
  */
-function minus(a: number, b: number): number {
+function minus(a: Nat, b: number): number {
   return a - b;
 }
 

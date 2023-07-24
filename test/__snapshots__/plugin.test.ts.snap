@@ -17,7 +17,13 @@ export async function main() {
        * @param b second arguments
        * @returns the sum of a and b
        */
-      add(a, b) {
+      add(
+        a,
+        /**
+         * @min 2
+         */
+        b,
+      ) {
         return a + b;
       },
       minus,
@@ -25,6 +31,39 @@ export async function main() {
     {
       messages: [],
     },
+    () => ({
+      functions: {
+        add: {
+          name: "add",
+          description: "Adds two numbers",
+          parameterNames: ["a", "b"],
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "integer", description: "first argument" },
+              b: {
+                type: "number",
+                minimum: 2,
+                description: "second arguments",
+              },
+            },
+          },
+        },
+        minus: {
+          name: "minus",
+          description: "Subtracts two numbers",
+          parameterNames: ["a", "b"],
+          parameters: {
+            type: "object",
+            properties: {
+              a: { type: "number", minimum: 1, description: "first argument" },
+              b: { type: "number", description: "second argument" },
+            },
+          },
+        },
+      },
+    }),
+    () => ({}),
   );
 }
 /**
@@ -45,7 +84,7 @@ export const myFunc = chat.function(
     parameters: {
       type: "object",
       properties: {
-        a: { type: "number", description: "first argument" },
+        a: { type: "number", minimum: 1, description: "first argument" },
         b: { type: "number", description: "second argument" },
       },
     },
@@ -57,13 +96,13 @@ export const myFunc = chat.function(
     parameters: {
       type: "object",
       properties: {
-        a: { type: "number", description: "first argument" },
+        a: { type: "number", minimum: 1, description: "first argument" },
         b: { type: "number", description: "second argument" },
       },
     },
   }),
 );
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxVQUFVLEVBQUUsSUFBSSxFQUFFLE1BQU0sU0FBUyxDQUFDO0FBRTNDLE1BQU0sTUFBTSxHQUFHLElBQUksVUFBVSxDQUFDO0lBQzVCLE1BQU0sRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLGNBQWU7Q0FDcEMsQ0FBQyxDQUFDO0FBRUgsTUFBTSxDQUFDLE1BQU0sR0FBRyxHQUFHLE1BQU0sQ0FBQyxHQUFHLENBQUMsSUFBSSxDQUFDLENBQUM7QUFFcEMsTUFBTSxDQUFDLEtBQUssVUFBVSxJQUFJO0lBQ3hCLE1BQU0sTUFBTSxDQUFDLElBQUksQ0FDZjtRQUNFOzs7Ozs7V0FNRztRQUNILEdBQUcsQ0FBQyxDQUFTLEVBQUUsQ0FBUztZQUN0QixPQUFPLENBQUMsR0FBRyxDQUFDLENBQUM7UUFDZixDQUFDO1FBQ0QsS0FBSztLQUNOLEVBQ0Q7UUFDRSxRQUFRLEVBQUUsRUFBRTtLQUNiLENBQ0YsQ0FBQztBQUNKLENBQUM7QUFFRDs7Ozs7R0FLRztBQUNILFNBQVMsS0FBSyxDQUFDLENBQVMsRUFBRSxDQUFTO0lBQ2pDLE9BQU8sQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUNmLENBQUM7QUFFRCxNQUFNLENBQUMsTUFBTSxNQUFNLEdBQUcsSUFBSSxDQUFDLFFBQVEsQ0FBQyxLQUFLLHFmQUFDLENBQUMiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgeyBDaGF0Q2xpZW50LCBjaGF0IH0gZnJvbSBcInRzLWNoYXRcIjtcblxuY29uc3QgY2xpZW50ID0gbmV3IENoYXRDbGllbnQoe1xuICBhcGlLZXk6IHByb2Nlc3MuZW52Lk9QRU5BSV9BUElfS0VZISxcbn0pO1xuXG5leHBvcnQgY29uc3Qgc3ltID0gU3ltYm9sLmZvcihcInRzXCIpO1xuXG5leHBvcnQgYXN5bmMgZnVuY3Rpb24gbWFpbigpIHtcbiAgYXdhaXQgY2xpZW50LmNoYXQoXG4gICAge1xuICAgICAgLyoqXG4gICAgICAgKiBBZGRzIHR3byBudW1iZXJzXG4gICAgICAgKlxuICAgICAgICogQHBhcmFtIGEgZmlyc3QgYXJndW1lbnRcbiAgICAgICAqIEBwYXJhbSBiIHNlY29uZCBhcmd1bWVudHNcbiAgICAgICAqIEByZXR1cm5zIHRoZSBzdW0gb2YgYSBhbmQgYlxuICAgICAgICovXG4gICAgICBhZGQoYTogbnVtYmVyLCBiOiBudW1iZXIpIHtcbiAgICAgICAgcmV0dXJuIGEgKyBiO1xuICAgICAgfSxcbiAgICAgIG1pbnVzLFxuICAgIH0sXG4gICAge1xuICAgICAgbWVzc2FnZXM6IFtdLFxuICAgIH1cbiAgKTtcbn1cblxuLyoqXG4gKiBTdWJ0cmFjdHMgdHdvIG51bWJlcnNcbiAqIEBwYXJhbSBhIGZpcnN0IGFyZ3VtZW50XG4gKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRcbiAqIEByZXR1cm5zIGEgLSBiXG4gKi9cbmZ1bmN0aW9uIG1pbnVzKGE6IG51bWJlciwgYjogbnVtYmVyKTogbnVtYmVyIHtcbiAgcmV0dXJuIGEgLSBiO1xufVxuXG5leHBvcnQgY29uc3QgbXlGdW5jID0gY2hhdC5mdW5jdGlvbihtaW51cyk7XG4iXX0=
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxVQUFVLEVBQUUsSUFBSSxFQUFPLE1BQU0sU0FBUyxDQUFDO0FBRWhELE1BQU0sTUFBTSxHQUFHLElBQUksVUFBVSxDQUFDO0lBQzVCLE1BQU0sRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLGNBQWU7Q0FDcEMsQ0FBQyxDQUFDO0FBRUgsTUFBTSxDQUFDLE1BQU0sR0FBRyxHQUFHLE1BQU0sQ0FBQyxHQUFHLENBQUMsSUFBSSxDQUFDLENBQUM7QUFPcEMsTUFBTSxDQUFDLEtBQUssVUFBVSxJQUFJO0lBQ3hCLE1BQU0sTUFBTSxDQUFDLElBQUksQ0FDZjtRQUNFOzs7Ozs7V0FNRztRQUNILEdBQUcsQ0FDRCxDQUFNO1FBQ047O1dBRUc7UUFDSCxDQUFNO1lBRU4sT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO1FBQ2YsQ0FBQztRQUNELEtBQUs7S0FDTixFQUNEO1FBQ0UsUUFBUSxFQUFFLEVBQUU7S0FDYiwyaUJBQ0YsQ0FBQztBQUNKLENBQUM7QUFFRDs7Ozs7R0FLRztBQUNILFNBQVMsS0FBSyxDQUFDLENBQU0sRUFBRSxDQUFTO0lBQzlCLE9BQU8sQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUNmLENBQUM7QUFFRCxNQUFNLENBQUMsTUFBTSxNQUFNLEdBQUcsSUFBSSxDQUFDLFFBQVEsQ0FBQyxLQUFLLDZnQkFBQyxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQ2hhdENsaWVudCwgY2hhdCwgaW50IH0gZnJvbSBcInRzLWNoYXRcIjtcblxuY29uc3QgY2xpZW50ID0gbmV3IENoYXRDbGllbnQoe1xuICBhcGlLZXk6IHByb2Nlc3MuZW52Lk9QRU5BSV9BUElfS0VZISxcbn0pO1xuXG5leHBvcnQgY29uc3Qgc3ltID0gU3ltYm9sLmZvcihcInRzXCIpO1xuXG4vKipcbiAqIEBtaW4gMVxuICovXG50eXBlIE5hdCA9IG51bWJlcjtcblxuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIG1haW4oKSB7XG4gIGF3YWl0IGNsaWVudC5jaGF0KFxuICAgIHtcbiAgICAgIC8qKlxuICAgICAgICogQWRkcyB0d28gbnVtYmVyc1xuICAgICAgICpcbiAgICAgICAqIEBwYXJhbSBhIGZpcnN0IGFyZ3VtZW50XG4gICAgICAgKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRzXG4gICAgICAgKiBAcmV0dXJucyB0aGUgc3VtIG9mIGEgYW5kIGJcbiAgICAgICAqL1xuICAgICAgYWRkKFxuICAgICAgICBhOiBpbnQsXG4gICAgICAgIC8qKlxuICAgICAgICAgKiBAbWluIDJcbiAgICAgICAgICovXG4gICAgICAgIGI6IE5hdFxuICAgICAgKSB7XG4gICAgICAgIHJldHVybiBhICsgYjtcbiAgICAgIH0sXG4gICAgICBtaW51cyxcbiAgICB9LFxuICAgIHtcbiAgICAgIG1lc3NhZ2VzOiBbXSxcbiAgICB9XG4gICk7XG59XG5cbi8qKlxuICogU3VidHJhY3RzIHR3byBudW1iZXJzXG4gKiBAcGFyYW0gYSBmaXJzdCBhcmd1bWVudFxuICogQHBhcmFtIGIgc2Vjb25kIGFyZ3VtZW50XG4gKiBAcmV0dXJucyBhIC0gYlxuICovXG5mdW5jdGlvbiBtaW51cyhhOiBOYXQsIGI6IG51bWJlcik6IG51bWJlciB7XG4gIHJldHVybiBhIC0gYjtcbn1cblxuZXhwb3J0IGNvbnN0IG15RnVuYyA9IGNoYXQuZnVuY3Rpb24obWludXMpO1xuIl19
 ",
 }
 `;
