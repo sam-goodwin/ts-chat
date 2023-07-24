@@ -17,11 +17,14 @@ export async function main() {
       /**
        * Adds two numbers
        *
-       * @param a first argument
+       * @param a
        * @param b second arguments
        * @returns the sum of a and b
        */
       add(
+        /**
+         * first argument
+         */
         a: int,
         /**
          * @min 2

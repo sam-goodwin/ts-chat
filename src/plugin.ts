@@ -319,14 +319,17 @@ export default function (
         return { $ref: `#/definitions/${typeName}` };
       }
 
-      function find<C extends Constraint>(constraint: C) {
+      function find<C extends keyof Comment>(constraint: C) {
         return context.comments?.find((c) => constraint in c)?.[constraint];
       }
+
+      const description = find("content");
 
       if (type.flags & ts.TypeFlags.Number) {
         const type = find("type");
         return {
           type: type === "int" || type === "integer" ? "integer" : "number",
+          description,
           minimum: find("minimum"),
           maximum: find("maximum"),
           multipleOf: find("multipleOf"),
@@ -336,13 +339,14 @@ export default function (
       } else if (type.flags & ts.TypeFlags.String) {
         return {
           type: "string",
+          description,
           pattern: find("pattern"),
           format: find("format"),
           maxLength: find("maxLength"),
           minLength: find("minLength"),
         };
       } else if (type.flags & ts.TypeFlags.Boolean) {
-        return { type: "boolean" };
+        return { type: "boolean", description };
       } else if (
         type.flags & ts.TypeFlags.Object &&
         (type as ts.ObjectType).objectFlags &

@@ -13,11 +13,14 @@ export async function main() {
       /**
        * Adds two numbers
        *
-       * @param a first argument
+       * @param a
        * @param b second arguments
        * @returns the sum of a and b
        */
       add(
+        /**
+         * first argument
+         */
         a,
         /**
          * @min 2
@@ -40,7 +43,7 @@ export async function main() {
           parameters: {
             type: "object",
             properties: {
-              a: { type: "integer", description: "first argument" },
+              a: { type: "integer", description: "" },
               b: {
                 type: "number",
                 minimum: 2,
@@ -96,13 +99,12 @@ export const myFunc = chat.function(
     parameters: {
       type: "object",
       properties: {
-        a: { type: "number", minimum: 1, description: "first argument" },
+        a: { type: "number", description: "first argument", minimum: 1 },
         b: { type: "number", description: "second argument" },
       },
     },
   }),
 );
-//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic3R1Yi5qcyIsInNvdXJjZVJvb3QiOiIiLCJzb3VyY2VzIjpbIi4uL3NyYy9zdHViLnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLE9BQU8sRUFBRSxVQUFVLEVBQUUsSUFBSSxFQUFPLE1BQU0sU0FBUyxDQUFDO0FBRWhELE1BQU0sTUFBTSxHQUFHLElBQUksVUFBVSxDQUFDO0lBQzVCLE1BQU0sRUFBRSxPQUFPLENBQUMsR0FBRyxDQUFDLGNBQWU7Q0FDcEMsQ0FBQyxDQUFDO0FBRUgsTUFBTSxDQUFDLE1BQU0sR0FBRyxHQUFHLE1BQU0sQ0FBQyxHQUFHLENBQUMsSUFBSSxDQUFDLENBQUM7QUFPcEMsTUFBTSxDQUFDLEtBQUssVUFBVSxJQUFJO0lBQ3hCLE1BQU0sTUFBTSxDQUFDLElBQUksQ0FDZjtRQUNFOzs7Ozs7V0FNRztRQUNILEdBQUcsQ0FDRCxDQUFNO1FBQ047O1dBRUc7UUFDSCxDQUFNO1lBRU4sT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO1FBQ2YsQ0FBQztRQUNELEtBQUs7S0FDTixFQUNEO1FBQ0UsUUFBUSxFQUFFLEVBQUU7S0FDYiwyaUJBQ0YsQ0FBQztBQUNKLENBQUM7QUFFRDs7Ozs7R0FLRztBQUNILFNBQVMsS0FBSyxDQUFDLENBQU0sRUFBRSxDQUFTO0lBQzlCLE9BQU8sQ0FBQyxHQUFHLENBQUMsQ0FBQztBQUNmLENBQUM7QUFFRCxNQUFNLENBQUMsTUFBTSxNQUFNLEdBQUcsSUFBSSxDQUFDLFFBQVEsQ0FBQyxLQUFLLDZnQkFBQyxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0IHsgQ2hhdENsaWVudCwgY2hhdCwgaW50IH0gZnJvbSBcInRzLWNoYXRcIjtcblxuY29uc3QgY2xpZW50ID0gbmV3IENoYXRDbGllbnQoe1xuICBhcGlLZXk6IHByb2Nlc3MuZW52Lk9QRU5BSV9BUElfS0VZISxcbn0pO1xuXG5leHBvcnQgY29uc3Qgc3ltID0gU3ltYm9sLmZvcihcInRzXCIpO1xuXG4vKipcbiAqIEBtaW4gMVxuICovXG50eXBlIE5hdCA9IG51bWJlcjtcblxuZXhwb3J0IGFzeW5jIGZ1bmN0aW9uIG1haW4oKSB7XG4gIGF3YWl0IGNsaWVudC5jaGF0KFxuICAgIHtcbiAgICAgIC8qKlxuICAgICAgICogQWRkcyB0d28gbnVtYmVyc1xuICAgICAgICpcbiAgICAgICAqIEBwYXJhbSBhIGZpcnN0IGFyZ3VtZW50XG4gICAgICAgKiBAcGFyYW0gYiBzZWNvbmQgYXJndW1lbnRzXG4gICAgICAgKiBAcmV0dXJucyB0aGUgc3VtIG9mIGEgYW5kIGJcbiAgICAgICAqL1xuICAgICAgYWRkKFxuICAgICAgICBhOiBpbnQsXG4gICAgICAgIC8qKlxuICAgICAgICAgKiBAbWluIDJcbiAgICAgICAgICovXG4gICAgICAgIGI6IE5hdFxuICAgICAgKSB7XG4gICAgICAgIHJldHVybiBhICsgYjtcbiAgICAgIH0sXG4gICAgICBtaW51cyxcbiAgICB9LFxuICAgIHtcbiAgICAgIG1lc3NhZ2VzOiBbXSxcbiAgICB9XG4gICk7XG59XG5cbi8qKlxuICogU3VidHJhY3RzIHR3byBudW1iZXJzXG4gKiBAcGFyYW0gYSBmaXJzdCBhcmd1bWVudFxuICogQHBhcmFtIGIgc2Vjb25kIGFyZ3VtZW50XG4gKiBAcmV0dXJucyBhIC0gYlxuICovXG5mdW5jdGlvbiBtaW51cyhhOiBOYXQsIGI6IG51bWJlcik6IG51bWJlciB7XG4gIHJldHVybiBhIC0gYjtcbn1cblxuZXhwb3J0IGNvbnN0IG15RnVuYyA9IGNoYXQuZnVuY3Rpb24obWludXMpO1xuIl19
 ",
 }
 `;

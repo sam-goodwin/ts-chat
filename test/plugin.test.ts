@@ -11,6 +11,7 @@ test("compile stub project", async () => {
   const stubDir = path.join(__dirname, "stub");
   const program = loadTypeScriptProgram(stubDir, "tsconfig.json");
 
+  const promises: Promise<void>[] = [];
   program.emit(
     undefined,
     async (fileName, text) => {
@@ -23,7 +24,12 @@ test("compile stub project", async () => {
           debugger;
         }
       }
-      await fs.writeFile(fileName, text);
+      promises.push(
+        (async () => {
+          await fs.mkdir(path.dirname(fileName), { recursive: true });
+          await fs.writeFile(fileName, text);
+        })()
+      );
     },
     undefined,
     false,
@@ -43,6 +49,7 @@ test("compile stub project", async () => {
       ],
     }
   );
+  await Promise.all(promises);
 
   const stubLib = path.join(__dirname, "stub", "lib");
   const stubFiles = await fs.readdir(stubLib);

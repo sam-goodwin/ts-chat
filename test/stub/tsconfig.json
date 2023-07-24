@@ -6,6 +6,7 @@
     "rootDir": "./src",
     "declaration": true,
     "composite": true,
+    "inlineSourceMap": false,
     "plugins": [
       {
         "transform": "ts-chat/plugin"

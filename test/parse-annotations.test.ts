@@ -17,9 +17,7 @@ describe("parseAnnotations", () => {
     const functionDeclaration = sourceFile.statements.find(
       ts.isFunctionDeclaration
     )!;
-    expect(parseComment(ts, functionDeclaration)).toEqual({
-      content: "",
-    } satisfies Comment);
+    expect(parseComment(ts, functionDeclaration)).toEqual(undefined);
   });
 
   test("should parse single annotation with value", () => {
@@ -27,7 +25,7 @@ describe("parseAnnotations", () => {
       "test.ts",
       `
             /**
-             * @min 10
+             * @minimum 10
              */
             function fn() {}
         `,
@@ -38,8 +36,7 @@ describe("parseAnnotations", () => {
       ts.isFunctionDeclaration
     )!;
     expect(parseComment(ts, functionDeclaration)).toEqual({
-      content: "",
-      min: 10,
+      minimum: 10,
     } satisfies Comment);
   });
 
@@ -51,7 +48,7 @@ describe("parseAnnotations", () => {
              * Hello
              * @param foo blah
              * blah blah
-             * @max 50
+             * @maximum 50
              */
             function fn(foo: any, param: any) {}
         `,
@@ -66,7 +63,7 @@ describe("parseAnnotations", () => {
       params: {
         foo: "blah\nblah blah",
       },
-      max: 50,
+      maximum: 50,
     } satisfies Comment);
   });
 });
