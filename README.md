@@ -21,7 +21,7 @@ await client.chat(
   },
   {
     messages: [
-      system`You are a calculator. Use the provided functions to perform computations for the user.`,
+      system`You are a calculator.`,
       user`what is the sum of 1 and 2?`,
     ],
   }
