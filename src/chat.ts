@@ -12,7 +12,6 @@ import {
   Configuration as OpenAIConfiguration,
 } from "openai";
 import type { Readable, Writable } from "stream";
-import type tf from "type-fest";
 
 export type ChatRole = "assistant" | "function" | "system" | "user";
 
@@ -44,8 +43,13 @@ type FunctionCall<
       payload: any;
     };
 
+export type ChatFunctionHandler = (
+  this: { messages: ChatMessage[] },
+  ...args: any[]
+) => any;
+
 export interface ChatFunctions {
-  [functionName: string]: (...args: any[]) => any;
+  [functionName: string]: ChatFunctionHandler;
 }
 
 export type ChatFunctionsSpec<F extends ChatFunctions> = {
@@ -176,9 +180,8 @@ export interface ChatInput<
   functionCall?: FunctionCallConfig<Functions> | undefined;
 }
 
-export type ChatResponse<
-  Functions extends ChatFunctions | undefined = undefined,
-> = ChatMessage<Functions>;
+export type ChatResponse<Functions extends ChatFunctions> =
+  ChatMessage<Functions>;
 
 /**
  * Thrown when a request to OpenAI times out.
@@ -235,7 +238,7 @@ export class ChatClient {
     functions: F,
     options: ChatInput<F>,
     getSpec?: () => ChatFunctionsSpec<F>
-  ) {
+  ): Promise<ChatResponse<F>> {
     assertSpec(getSpec);
     const functionSpecs = getSpec();
     const response = await this.chatCompletion<F>({
@@ -266,12 +269,29 @@ export class ChatClient {
           }
           return [argValue];
         });
-        const response = await func(...argValues);
+        const messages = [...options.messages, response];
+        const functionCallResult = await func.bind({
+          messages,
+        })(...argValues);
+
+        // TODO: implement stop logic
+
+        return this.chat(functions, {
+          ...options,
+          messages: [
+            ...messages,
+            {
+              role: "function",
+              name: response.function_call.name,
+              content: JSON.stringify(functionCallResult),
+            },
+          ],
+        });
       } else {
         throw new Error(`Expected an object, got ${typeof args}`);
       }
     }
-    // TODO:
+    return response;
   }
 
   /**

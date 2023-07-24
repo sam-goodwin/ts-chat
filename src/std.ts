@@ -9,6 +9,6 @@ export type int = number;
 export type nat = int;
 
 /**
- * @minimum 0
+ * @format date-time
  */
-export type whole = int;
+export type timestamp = string;

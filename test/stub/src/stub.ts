@@ -1,4 +1,4 @@
-import { ChatClient, chat, int } from "ts-chat";
+import { ChatClient, chat, int, timestamp } from "ts-chat";
 
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -34,6 +34,9 @@ export async function main() {
         return a + b;
       },
       minus,
+      getMonth(time: timestamp) {
+        return time;
+      },
     },
     {
       messages: [],

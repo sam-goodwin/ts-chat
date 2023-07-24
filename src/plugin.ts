@@ -394,7 +394,10 @@ export default function (
         }
 
         return context.isTopLevel
-          ? definition
+          ? {
+              ...definition,
+              definitions: context.existingDefinitions,
+            }
           : { $ref: `#/definitions/${typeName}` };
       } else {
         throw new Error("Unsupported type: " + type.flags);
