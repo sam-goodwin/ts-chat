@@ -1,6 +1,6 @@
 {
   "name": "ts-chat",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "",
   "keywords": [],
   "author": "Sam Goodwin",
@@ -9,7 +9,7 @@
     "lib"
   ],
   "bin": {
-    "ts-chat": "./lib/esm/cli.js"
+    "ts-chat": "./lib/esm/cli.mjs"
   },
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
