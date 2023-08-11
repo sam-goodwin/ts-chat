@@ -10,6 +10,7 @@ import {
   type CreateChatCompletionResponse,
   type CreateChatCompletionResponseChoicesInner,
   type ConfigurationParameters as OpenAIConfigurationProps,
+  CreateChatCompletionRequest,
 } from "openai";
 import type { Readable, Writable } from "stream";
 import type { ChatMessage } from "./message.js";
@@ -35,7 +36,9 @@ export interface ChatFunctions {
 }
 
 export type ChatFunctionsSpec<F extends ChatFunctions> = {
-  [name in keyof F]: ChatFunctionSpec;
+  functions: {
+    [name in keyof F]: ChatFunctionSpec;
+  };
 };
 
 /**
@@ -229,14 +232,10 @@ export class ChatClient {
   ): Promise<ChatResponse<F>> {
     assertSpec(getSpec);
     const functionSpecs = getSpec();
-    const request = {
+    const response = await this.chatCompletion<F>({
       ...options,
       functions: functionSpecs,
-    };
-    if (options.verbose) {
-      console.log("Chat Request:", request);
-    }
-    const response = await this.chatCompletion<F>(request);
+    });
 
     if (response.function_call === undefined) {
       // terminal assistant response
@@ -244,7 +243,7 @@ export class ChatClient {
       const func = functions[response.function_call.name];
       const funcSpec = isChatFunction(func)
         ? func.spec
-        : functionSpecs[response.function_call.name];
+        : functionSpecs.functions[response.function_call.name];
       if (!func || !funcSpec) {
         throw new Error(
           `OpenAI called function ${response.function_call.name} but it was not defined.`
@@ -346,33 +345,35 @@ export class ChatClient {
 
       const stream = !!props.output; // stream is truthy
 
-      const completion = await this.openai.createChatCompletion(
-        {
-          // TODO: change the specific version to the latest version once updated
-          model: props?.model ?? "gpt-4-0613",
-          messages: messages.map((msg) => toRawChatMessage(msg)),
-          temperature: props?.temperature ?? 0,
-          max_tokens: props?.maxTokens ?? 1024,
-          n: props?.n ?? 1,
-          top_p: 1,
-          stream,
-          stop: props.stop,
-          functions: props.functions
-            ? Object.values(props.functions).map(
-                ({ name, description, parameters }) => ({
-                  name,
-                  description,
-                  parameters,
-                })
-              )
-            : undefined,
-          function_call: props.functionCall,
-        },
-        {
-          responseType: stream ? "stream" : undefined,
-          signal: abortController.signal,
-        }
-      );
+      const functions = props.functions?.functions
+        ? Object.values(props.functions.functions).map(
+            ({ name, description, parameters }) => ({
+              name,
+              description,
+              parameters,
+            })
+          )
+        : undefined;
+      const request: CreateChatCompletionRequest = {
+        // TODO: change the specific version to the latest version once updated
+        model: props?.model ?? "gpt-4-0613",
+        messages: messages.map((msg) => toRawChatMessage(msg)),
+        temperature: props?.temperature ?? 0,
+        max_tokens: props?.maxTokens ?? 1024,
+        n: props?.n ?? 1,
+        top_p: 1,
+        stream,
+        stop: props.stop,
+        functions: functions?.length ? functions : undefined,
+        function_call: props.functionCall,
+      };
+      if (props.verbose) {
+        console.log("Chat request:", JSON.stringify(request, null, 2));
+      }
+      const completion = await this.openai.createChatCompletion(request, {
+        responseType: stream ? "stream" : undefined,
+        signal: abortController.signal,
+      });
 
       const response = !stream
         ? completion.data
