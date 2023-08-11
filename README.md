@@ -48,7 +48,7 @@ There are two options for this set up:
 Run the `setup` script to install `ts-patch`, configure `prepare` and install `ts-chat/plugin` in `tsconfig.json`
 
 ```
-ts-chat setup
+npx ts-chat setup
 ```
 
 This script performs the following steps:
