@@ -3,6 +3,7 @@
 exports[`compile stub project 1`] = `
 {
   "stub.js": "import { ChatClient, chat } from "ts-chat";
+import { assistant, user } from "../../../src/message.js";
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -51,7 +52,11 @@ export async function main() {
       },
     },
     {
-      messages: [],
+      messages: [
+        //
+        user\`Hello, I am a user\`,
+        sam\`Hello, I am an assistant\`,
+      ],
     },
     () => ({
       functions: {
@@ -116,6 +121,7 @@ export async function main() {
     }),
   );
 }
+const sam = assistant("Sam");
 /**
  * Subtracts two numbers
  * @param a first argument

@@ -60,11 +60,13 @@ export async function main() {
       messages: [
         //
         user`Hello, I am a user`,
-        assistant("name")`Hello, I am an assistant`,
+        sam`Hello, I am an assistant`,
       ],
     }
   );
 }
+
+const sam = assistant("Sam");
 
 /**
  * Subtracts two numbers
