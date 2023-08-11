@@ -70,16 +70,15 @@ export async function setup(cwd: string, _argv: any) {
   if (!("ts-node" in packageJson.devDependencies)) {
     dependencies.push("ts-node");
   }
-  if (dependencies.length > 0) {
-    const pkgManager = await discoverPackageManager(cwd);
-    if (pkgManager === "npm") {
-      await sh("npm", "install", "--save-dev", "ts-patch", "ts-node");
-    } else if (pkgManager === "yarn") {
-      await sh("yarn", "add", "-D", "ts-patch", "ts-node");
-    } else {
-      await sh("pnpm", "add", "-D", "ts-patch", "ts-node");
-    }
+  const pkgManager = await discoverPackageManager(cwd);
+  if (pkgManager === "npm") {
+    await sh("npm", "install", "--save-dev", "ts-patch", "ts-node");
+  } else if (pkgManager === "yarn") {
+    await sh("yarn", "add", "-D", "ts-patch", "ts-node");
+  } else {
+    await sh("pnpm", "add", "-D", "ts-patch", "ts-node");
   }
+  await sh(pkgManager, "prepare");
 }
 
 function exit(code: number, message: string): never {

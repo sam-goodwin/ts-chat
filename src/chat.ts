@@ -108,6 +108,10 @@ export interface ChatInput<
   Functions extends ChatFunctions | undefined = undefined,
 > {
   /**
+   * Enable for verbose logging of the request and response.
+   */
+  verbose?: boolean;
+  /**
    * The chat messages.
    */
   messages: ChatMessage[];
@@ -225,10 +229,14 @@ export class ChatClient {
   ): Promise<ChatResponse<F>> {
     assertSpec(getSpec);
     const functionSpecs = getSpec();
-    const response = await this.chatCompletion<F>({
+    const request = {
       ...options,
       functions: functionSpecs,
-    });
+    };
+    if (options.verbose) {
+      console.log("Chat Request:", request);
+    }
+    const response = await this.chatCompletion<F>(request);
 
     if (response.function_call === undefined) {
       // terminal assistant response
