@@ -28,6 +28,20 @@ await client.chat(
 );
 ```
 
+Types and comments can be used fluidly and natively. E.g. here's how we can define integers and natural numbers. Constraints are parsed from the comments and can be extended/overriden:
+
+```ts
+/**
+ * @type int
+ */
+type int = number;
+
+/**
+ * @min 1
+ */
+type nat = int;
+```
+
 ## Installation
 
 First, install `ts-chat`:
