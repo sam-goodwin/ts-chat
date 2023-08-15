@@ -42,6 +42,17 @@ type int = number;
 type nat = int;
 ```
 
+Use interfaces to describe well-typed structured data with well-constrained properties:
+```ts
+interface Person {
+  /**
+   * @pattern [a-zA-z]+
+   * @minLength 3
+   */
+  name: string;
+}
+```
+
 ## Installation
 
 First, install `ts-chat`:
