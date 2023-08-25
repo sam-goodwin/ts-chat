@@ -380,7 +380,7 @@ export default function (
           }, {}),
         };
       } else {
-        throw new Error("Unsupported type: " + type.flags);
+        throw new Error("Unsupported type: " + checker.typeToString(type));
       }
     }
 
