@@ -2,12 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
-    "noEmit": true,
     "outDir": "lib",
     "rootDir": "./src",
     "declaration": true,
     "composite": true,
     "inlineSourceMap": false,
+    "allowJs": true,
     "plugins": [
       {
         "transform": "ts-chat/plugin"

@@ -2,8 +2,7 @@
 
 exports[`compile stub project 1`] = `
 {
-  "stub.js": "import { ChatClient, chat } from "ts-chat";
-import { assistant, user } from "../../../src/message.js";
+  "stub.js": "import { assistant, user, ChatClient, chat } from "ts-chat";
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -49,6 +48,9 @@ export async function main() {
       },
       hello(person, message) {
         return \`Hello \${person.name}, \${message}\`;
+      },
+      list(strings) {
+        return "foo";
       },
     },
     {
@@ -114,6 +116,16 @@ export async function main() {
                 },
               },
               message: { type: "string" },
+            },
+          },
+        },
+        list: {
+          name: "list",
+          parameterNames: ["strings"],
+          parameters: {
+            type: "object",
+            properties: {
+              strings: { type: "array", items: [{ type: "string" }] },
             },
           },
         },

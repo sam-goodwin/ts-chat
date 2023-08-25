@@ -343,11 +343,7 @@ export default function (
         };
       } else if (type.flags & ts.TypeFlags.Boolean) {
         return { type: "boolean", description };
-      } else if (
-        type.flags & ts.TypeFlags.Object &&
-        (type as ts.ObjectType).objectFlags &
-          (ts.ObjectFlags.Tuple | ts.ObjectFlags.ArrayLiteral)
-      ) {
+      } else if (checker.isArrayType(type)) {
         return {
           type: "array",
           items: (type as ts.TupleType).typeArguments?.map((typeArg) =>

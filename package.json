@@ -73,7 +73,7 @@
       "/node_modules/",
       "/lib/",
       "/src/",
-      "/test/mocks/"
+      "/test/stub/lib/"
     ]
   }
 }

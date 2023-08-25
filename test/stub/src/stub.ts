@@ -1,5 +1,4 @@
-import { ChatClient, chat, int, timestamp } from "ts-chat";
-import { assistant, user } from "../../../src/message.js";
+import { assistant, user, ChatClient, chat, int, timestamp } from "ts-chat";
 
 const client = new ChatClient({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -54,6 +53,9 @@ export async function main() {
       },
       hello(person: Person, message: string) {
         return `Hello ${person.name}, ${message}`;
+      },
+      list(strings: string[]) {
+        return "foo";
       },
     },
     {
