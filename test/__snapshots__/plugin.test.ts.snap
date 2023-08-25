@@ -125,7 +125,7 @@ export async function main() {
           parameters: {
             type: "object",
             properties: {
-              strings: { type: "array", items: [{ type: "string" }] },
+              strings: { type: "array", items: { type: "string" } },
             },
           },
         },

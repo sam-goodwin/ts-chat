@@ -343,11 +343,15 @@ export default function (
         };
       } else if (type.flags & ts.TypeFlags.Boolean) {
         return { type: "boolean", description };
-      } else if (checker.isArrayType(type)) {
+      } else if (
+        checker.isArrayType(type) &&
+        (type as ts.TupleType).typeArguments?.[0]
+      ) {
         return {
           type: "array",
-          items: (type as ts.TupleType).typeArguments?.map((typeArg) =>
-            typeToJSONSchema(typeArg, context)
+          items: typeToJSONSchema(
+            (type as ts.TupleType).typeArguments![0],
+            context
           ),
         };
       } else if (
