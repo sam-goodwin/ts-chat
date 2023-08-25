@@ -57,6 +57,7 @@ export async function main() {
       list(strings: string[]) {
         return "foo";
       },
+      any(a: any) {},
     },
     {
       messages: [

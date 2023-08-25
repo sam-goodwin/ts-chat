@@ -321,7 +321,9 @@ export default function (
 
       const description = find("content");
 
-      if (type.flags & ts.TypeFlags.Number) {
+      if (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) {
+        return {};
+      } else if (type.flags & ts.TypeFlags.Number) {
         const type = find("type");
         return {
           type: type === "int" || type === "integer" ? "integer" : "number",

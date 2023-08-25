@@ -52,6 +52,7 @@ export async function main() {
       list(strings) {
         return "foo";
       },
+      any(a) {},
     },
     {
       messages: [
@@ -128,6 +129,11 @@ export async function main() {
               strings: { type: "array", items: { type: "string" } },
             },
           },
+        },
+        any: {
+          name: "any",
+          parameterNames: ["a"],
+          parameters: { type: "object", properties: { a: {} } },
         },
       },
     }),
