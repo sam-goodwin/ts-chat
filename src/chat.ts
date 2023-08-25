@@ -269,17 +269,21 @@ export class ChatClient {
 
         // TODO: implement stop logic
 
-        return this.chat(functions, {
-          ...options,
-          messages: [
-            ...messages,
-            {
-              role: "function",
-              name: response.function_call.name,
-              content: JSON.stringify(functionCallResult),
-            },
-          ],
-        });
+        return this.chat(
+          functions,
+          {
+            ...options,
+            messages: [
+              ...messages,
+              {
+                role: "function",
+                name: response.function_call.name,
+                content: JSON.stringify(functionCallResult),
+              },
+            ],
+          },
+          getSpec
+        );
       } else {
         throw new Error(`Expected an object, got ${typeof args}`);
       }
