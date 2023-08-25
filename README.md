@@ -111,6 +111,12 @@ From `ts-patch`'s documentation on ["Live Compilation"](https://github.com/nonar
 >
 > With tools such as `ts-node`, `webpack`, `ts-jest`, etc: specify the compiler as ts-patch/compiler
 
+Example:
+
+```
+ts-node-esm --compiler ts-patch/compiler ./src/index.ts
+```
+
 ## How it Works
 
 Functions are converted into their corresponding OpenAI Function definition:
