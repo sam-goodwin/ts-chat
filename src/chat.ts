@@ -268,7 +268,6 @@ export class ChatClient {
         })(...argValues);
 
         // TODO: implement stop logic
-
         return this.chat(
           functions,
           {
@@ -565,7 +564,12 @@ async function streamChatResponse(
       return undefined;
     }
 
-    return JSON.parse(message) as CreateChatCompletionStreamResponse;
+    try {
+      return JSON.parse(message) as CreateChatCompletionStreamResponse;
+    } catch (err) {
+      console.log(`Failed to parse message: ${message}`);
+      throw err;
+    }
   }
 
   function mergeMessageParts(

@@ -1,6 +1,6 @@
 {
   "name": "ts-chat",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "",
   "keywords": [],
   "author": "Sam Goodwin",
@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "@types/json-schema": "^7.0.12",
+    "arktype": "1.0.23-alpha",
     "axios": "^1.4.0",
     "js-tiktoken": "^1.0.7",
     "openai": "^3.3.0",

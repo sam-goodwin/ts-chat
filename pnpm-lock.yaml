@@ -7,6 +7,9 @@ importers:
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
+      arktype:
+        specifier: 1.0.23-alpha
+        version: 1.0.23-alpha
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -865,6 +868,10 @@ packages:
     dependencies:
       sprintf-js: 1.0.3
     dev: true
+
+  /arktype@1.0.23-alpha:
+    resolution: {integrity: sha512-daqSVou8f8XqQAeLBD6+hO3hAR8MKun2C+2zNYf7Dc/3nf6N5eQxVZN/XgAMgQc9L2mtKczCjGQFJeaTxCR4OQ==}
+    dev: false
 
   /asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
