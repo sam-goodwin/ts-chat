@@ -6,7 +6,7 @@
     "rootDir": ".",
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext"
   }
 }

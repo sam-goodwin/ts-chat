@@ -8,7 +8,7 @@
     "inlineSourceMap": true,
     "inlineSources": true,
     "lib": ["ES2022", "WebWorker"],
-    "module": "esnext",
+    "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "outDir": "lib",
     "resolveJsonModule": true,

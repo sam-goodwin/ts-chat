@@ -1,11 +1,11 @@
-import { Kind } from "./expr.js";
+import { type Expr, Kind } from "./expr.js";
 
-export type Json<E> = {
+export type Json<E extends Expr> = {
   [Kind]: "json";
   expr: E;
 };
 
-export const json = <E>(expr: E) => ({
+export const json = <E extends Expr>(expr: E) => ({
   [Kind]: "json",
   expr,
 });

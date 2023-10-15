@@ -4,6 +4,6 @@ import type { PrecompiledDefaults } from "arktype/internal/scopes/ark.js";
 
 export type type = Type | string;
 
-export type valueOf<T extends type> = T extends Type<infer V>
-  ? V
+export type valueOf<T extends type> = T extends Type
+  ? T["infer"]
   : inferDefinition<T, PrecompiledDefaults>;
