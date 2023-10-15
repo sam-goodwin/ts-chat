@@ -24,11 +24,11 @@ export type Expr =
   | boolean
   | number
   | string
-  | $
-  | Slot
+  | $<any, any>
+  | Slot<any, any>
   | Turn<any, any>
   | Json<any>
-  | Each<any>
+  | Each<any, any>
   | Expr[]
   | {
       [prop in string]: Expr;

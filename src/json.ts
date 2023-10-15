@@ -5,7 +5,7 @@ export type Json<E extends Expr> = {
   expr: E;
 };
 
-export const json = <E extends Expr>(expr: E) => ({
+export const json = <const E extends Expr>(expr: E): Json<E> => ({
   [Kind]: "json",
   expr,
 });

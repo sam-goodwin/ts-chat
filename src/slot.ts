@@ -1,5 +1,5 @@
 import { each, type Each } from "./each.js";
-import { type Expr, Kind } from "./expr.js";
+import { Kind, type Expr } from "./expr.js";
 import { type, type valueOf } from "./type.js";
 
 type SlotOptions = {
@@ -8,14 +8,16 @@ type SlotOptions = {
   maxTokens?: number;
 };
 
-export type Slot<ID extends string = string, T extends type = any> = {
+export interface Slot<ID extends string = string, Type extends type = any> {
   [Kind]: "slot";
   id: ID;
-  type: T;
-  value: valueOf<T>;
+  type: Type;
+  value: valueOf<Type>;
   options: SlotOptions | undefined;
-  map<E extends Expr>(fn: (item: valueOf<T>) => E): Each<E>;
-};
+  map: valueOf<Type> extends (infer v)[]
+    ? <E extends Expr>(fn: (item: v) => E) => Each<Slot<ID, Type>, E>
+    : never;
+}
 
 export function slot<const ID extends string, const T extends type = "string">(
   id: ID,
@@ -29,8 +31,8 @@ export function slot<const ID extends string, const T extends type = "string">(
     options,
     // phantom value
     value: undefined as any,
-    map: <E extends Expr>(fn: (item: valueOf<T>) => E) =>
-      each(slot, fn) as Each<any>,
+    // @ts-expect-error
+    map: <E extends Expr>(fn: (item: any) => E) => each(slot, fn) as any,
   } as const;
   return slot;
 }

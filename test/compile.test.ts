@@ -33,19 +33,21 @@ const Entity = type({
   time: "string",
 });
 
-const Sample = slot(
-  "sample",
-  type({
-    input: "string",
-    entities: arrayOf(Entity),
-    answer: "'yes'|'no'",
-    reasoning: "string",
-  })
+const Samples = $(
+  "samples",
+  arrayOf(
+    type({
+      input: "string",
+      entities: arrayOf(Entity),
+      answer: "'yes'|'no'",
+      reasoning: "string",
+    })
+  )
 );
 
 const createPerson = ai.compile`Given a sentence tell me whether it contains an anachronism (i.e. whether it could have happened or not based on the time periods associated with the entities).
 ----
-${Sample.map((sample) => ({
+${Samples.map((sample) => ({
   Sentence: sample.input,
   "Entities and Dates\n": sample.entities,
   Reasoning: sample.reasoning,
@@ -56,7 +58,7 @@ ${assistant`The following is a character profile for an RPG game in JSON format.
 
 Person:
 ${json({
-  id: $("id"),
+  id: $("id", "uuid"),
   description: $("description"),
   name: slot("name", "string|number"),
   age: slot("age", "integer"),
@@ -67,7 +69,20 @@ ${user`Age of the person is: ${$("age")}`}`;
 
 const { age, name } = await createPerson({
   id: "some id",
-  description: "the description",
+  description: "",
+  samples: [
+    {
+      answer: "yes",
+      entities: [
+        {
+          entity: "",
+          time: "",
+        },
+      ],
+      input: "",
+      reasoning: "",
+    },
+  ],
 });
 
 const experts = ai.compile`
@@ -93,62 +108,3 @@ ${assistant`${slot("answer", "string", {
 const { answer, expert_names } = await experts({
   query: "What is the meaning of life?",
 });
-
-type program = [
-  Turn<[$<"i">]>,
-  Slot<"foo", "string">,
-  $<"foo">,
-  Turn<[$<"bar">]>,
-  Each<{
-    input: $<"input">;
-    key: $<"list">;
-  }>,
-  // Json<{
-  //   key: Infer<"key", "string">;
-  // }>,
-];
-
-type out = compile<program>;
-declare const out: out;
-out.input.i;
-out.input.bar;
-out.input.input;
-out.output.foo;
-
-type compiled = compile<program>;
-declare const compiled: compiled;
-compiled.input.bar;
-compiled.output.foo;
-compiled.names.bar;
-compiled.names.foo;
-
-type prog2 = [
-  Slot<"color", "'brown'|'red'">,
-  Slot<"animal", "'fox'|'dog'|'cat'">,
-  Slot<"obstacle", "'lazy dog'|'fence'|'wall'">,
-];
-
-type out2 = compile<prog2>;
-
-type out3 = compile<
-  [
-    Each<{
-      Sentence: string;
-      // "Entities and Dates\n": Each<
-      //   {
-      //     entity: string;
-      //     time: string;
-      //   },
-      //   any
-      // >;
-      Reasoning: string;
-      Anachronism: "no" | "yes";
-    }>,
-  ]
->;
-
-type out4 = compile<
-  [Each<Turn<[string, Each<$<"foo">>, string, "no" | "yes"], undefined>>]
->;
-
-type out5 = compile<[Turn<[string, string, $<"foo", "string">], undefined>[]]>;

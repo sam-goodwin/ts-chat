@@ -60,8 +60,8 @@ export type compile<
       >
     : e extends Turn<infer E>
     ? compileBlock<E, es, Env>
-    : e extends Each<infer E extends Expr>
-    ? compileBlock<[E], es, Env>
+    : e extends Each<infer Item extends Expr, infer E extends Expr>
+    ? compileBlock<[Item, E], es, Env>
     : e extends Expr[]
     ? number extends e["length"]
       ? compileBlock<e, es, Env>
