@@ -9,7 +9,6 @@ export type Each<Items, E extends Expr> = {
 
 export function each<Item extends slot, E extends Expr>(
   items: Item,
-  // fn: (item: Item["type"]) => E
   fn: (item: Item["value"]) => E
 ): Each<Item, E>;
 

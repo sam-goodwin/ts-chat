@@ -18,6 +18,17 @@ export interface AI {
       ? () => Promise<Output>
       : (params: simplify<Input & Partial<Output>>) => Promise<simplify<Output>>
     : never;
+
+  compile<E extends Expr[]>(
+    ...expressions: E
+  ): compile<E> extends {
+    input: infer Input extends Scope;
+    output: infer Output extends Scope;
+  }
+    ? {} extends Input
+      ? () => Promise<Output>
+      : (params: simplify<Input & Partial<Output>>) => Promise<simplify<Output>>
+    : never;
 }
 
 export declare const AI: new () => AI;

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import type { $ } from "./$.js";
 import type { Each } from "./each.js";
-import type { json } from "./json.js";
+import type { Json } from "./json.js";
 import type { slot } from "./slot.js";
 import type { Turn } from "./turn.js";
 
@@ -28,7 +28,7 @@ export type Expr =
   | $<any, any>
   | slot<any, any>
   | Turn<any, any>
-  | json<any>
+  | Json<any>
   | Each<any, any>
   | Expr[]
   | ReactElement<Expr>

@@ -4,6 +4,7 @@ export * from "./compile.js";
 export * from "./each.js";
 export * from "./expr.js";
 export * from "./json.js";
+export * from "./roles/index.js";
 export * from "./role.js";
 export * from "./slot.js";
 export * from "./turn.js";
