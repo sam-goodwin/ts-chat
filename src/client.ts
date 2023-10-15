@@ -2,7 +2,7 @@ import type { Scope, compile } from "./compile.js";
 import type { Expr } from "./expr.js";
 import type { simplify } from "./simplify.js";
 
-export class LLM {}
+export interface LLM {}
 
 // if i use a class, we get an infinite type instantiation loop
 // the workaround is to declare it as an interface

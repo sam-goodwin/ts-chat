@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "include": ["src", "src/package.json"],
-  "exclude": ["test/mock"],
+  "exclude": ["test/mock", "src/jsx"],
   "compilerOptions": {
     "outDir": "lib/esm"
   }

@@ -1,5 +1,5 @@
 import { Kind, type Expr } from "./expr.js";
-import { Slot } from "./slot.js";
+import { slot } from "./slot.js";
 
 export type Each<Items, E extends Expr> = {
   [Kind]: "each";
@@ -7,7 +7,7 @@ export type Each<Items, E extends Expr> = {
   fn: (item: any) => E;
 };
 
-export function each<Item extends Slot, E extends Expr>(
+export function each<Item extends slot, E extends Expr>(
   items: Item,
   // fn: (item: Item["type"]) => E
   fn: (item: Item["value"]) => E

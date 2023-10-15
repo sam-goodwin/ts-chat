@@ -1,8 +1,8 @@
 import type { $ } from "./$.js";
 import type { Each } from "./each.js";
 import type { Expr } from "./expr.js";
-import { Json } from "./json.js";
-import type { Slot } from "./slot.js";
+import type { json } from "./json.js";
+import type { slot } from "./slot.js";
 import type { Turn } from "./turn.js";
 import type { valueOf } from "./type.js";
 import type { UnionToIntersection } from "./util.js";
@@ -49,7 +49,7 @@ export type compile<
             output: Env["output"];
           }
         >
-    : e extends Slot<infer ID extends string, infer Type>
+    : e extends slot<infer ID extends string, infer Type>
     ? compile<
         es,
         {
@@ -68,7 +68,7 @@ export type compile<
       : compileDistributed<e[number], es, Env>
     : e extends Record<string, infer E extends Expr>
     ? compileDistributed<E, es, Env>
-    : e extends Json<infer J extends Expr>
+    : e extends json<infer J extends Expr>
     ? compileDistributed<[J], es, Env>
     : Env
   : Env;

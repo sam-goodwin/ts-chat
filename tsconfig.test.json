@@ -1,12 +1,13 @@
 {
   "extends": "./tsconfig.base.json",
   "include": ["src", "test"],
-  "exclude": ["test/mock"],
+  "exclude": ["test/mock", "src/jsx", "test/jsx.test.tsx"],
   "compilerOptions": {
     "rootDir": ".",
     "noEmit": true,
     "esModuleInterop": true,
     "module": "NodeNext",
-    "moduleResolution": "NodeNext"
+    "moduleResolution": "NodeNext",
+    "jsx": "preserve"
   }
 }

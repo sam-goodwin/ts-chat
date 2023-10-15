@@ -1,7 +1,8 @@
+import type { ReactElement } from "react";
 import type { $ } from "./$.js";
 import type { Each } from "./each.js";
-import type { Json } from "./json.js";
-import type { Slot } from "./slot.js";
+import type { json } from "./json.js";
+import type { slot } from "./slot.js";
 import type { Turn } from "./turn.js";
 
 export const Kind = Symbol.for("ts-chat.Expr");
@@ -25,11 +26,12 @@ export type Expr =
   | number
   | string
   | $<any, any>
-  | Slot<any, any>
+  | slot<any, any>
   | Turn<any, any>
-  | Json<any>
+  | json<any>
   | Each<any, any>
   | Expr[]
+  | ReactElement<Expr>
   | {
       [prop in string]: Expr;
     };

@@ -13,6 +13,7 @@
     "outDir": "lib",
     "resolveJsonModule": true,
     "target": "ESNext",
-    "types": ["@types/node", "@types/jest"]
+    "types": ["@types/node", "@types/jest"],
+    "jsx": "preserve"
   }
 }
