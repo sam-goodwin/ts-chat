@@ -1,1 +1,1 @@
-import { OpenAIApi } from "openai";
+import { OpenAI } from "openai";

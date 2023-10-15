@@ -1,4 +1,4 @@
-import type { Type } from "arktype";
+import { Type } from "arktype";
 import type { inferDefinition } from "arktype/internal/parse/definition.js";
 import type { PrecompiledDefaults } from "arktype/internal/scopes/ark.js";
 

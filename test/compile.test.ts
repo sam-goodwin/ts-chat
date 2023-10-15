@@ -1,50 +1,60 @@
-import {
-  assistant,
-  infer,
-  input,
-  json,
-  compile,
-  system,
-  user,
-  Eval,
-} from "../src/index.js";
+import { AI, LLM, assistant, slot, $, system, user } from "../src/index.js";
 
-const j = json({
-  id: input("id", "uuid"),
-  "description?": input("description", "string"),
-  name: infer("string"),
-  age: infer("integer"),
-});
+const ai = new AI();
 
-type A = Eval<typeof j>;
+const color = slot("color", "'brown'|'red'");
+const animal = slot("animal", "'fox'|'dog'|'cat'");
+const obstacle = slot("obstacle", "'lazy dog'|'fence'|'wall'");
 
-const program = compile`The following is a character profile for an RPG game in JSON format.
+const nurseryRhyme = ai.compile`The quick ${color} ${animal} jumped over the ${obstacle}.`;
+
+{
+  const { color, animal, obstacle } = await nurseryRhyme();
+  if (animal === "") {
+  }
+}
+
+const createPerson = ai.compile`
+
+${assistant`The following is a character profile for an RPG game in JSON format.
 
 Person:
-${json({
-  id: input("uuid"),
-  description: input("string"),
-  name: infer("string"),
-  age: infer("integer"),
-})}`;
+\`\`\`json
+{
+  "id": "${$("id")}",
+  "description": "${$("description")}",
+  "name": "${slot("name", "string|number")}",
+  "age": ${slot("age", "integer")},
+}
+\`\`\`
+`}
 
-const {} = await program({});
+${user`Age of the person is: ${$("age")}`}`;
 
-const experts = compile`
+const r = await createPerson({
+  id: "123",
+  description: "A person",
+});
+r.name;
+
+const experts = await ai.compile`
+
 ${system`You are a helpful and terse assistant.`}
 
 ${user`I want a response to the following question:
-${input("query", "string")}`}
+${$("query", "string")}`}
 
-${assistant`${infer("expert_names", "string", {
+${assistant`${slot("expert_names", "string", {
   temperature: 0,
   maxTokens: 300,
 })}`}
 
 ${user`Great, now please answer the question as if these experts had collaborated in writing a joint anonymous answer.`}
 
-${assistant`${infer("answer", {
+${assistant`${slot("answer", "string", {
   temperature: 0,
   maxTokens: 500,
 })}`}
-`;
+`({
+  query: "What is the meaning of life?",
+});

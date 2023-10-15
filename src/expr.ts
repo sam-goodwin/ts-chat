@@ -1,8 +1,9 @@
-import type { Infer } from "./infer.js";
-import type { Input } from "./input.js";
-import type { Program } from "./program.js";
+import type { Slot } from "./slot.js";
+import type { $ } from "./$.js";
+import type { Json } from "./json.js";
+import type { Turn } from "./turn.js";
 
-export const Expr = Symbol.for("ts-chat.Expr");
+export const Kind = Symbol.for("ts-chat.Expr");
 
 export type Expr =
   | undefined
@@ -10,10 +11,10 @@ export type Expr =
   | boolean
   | number
   | string
-  | Input
-  | Infer
-  | Expr[]
-  | Program<Expr[], any, any>
+  | $
+  | Slot
+  | Turn<any, any>
+  | Json<any>
   | {
       [prop in string]: Expr;
     };
